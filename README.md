@@ -7,38 +7,38 @@
 ./test.sh
 ```
 
-To run:
+### To run:
 ```
 ./run.sh
 ```
 
-To build:
+### To build:
 ```
 ./build.sh
 ```
 
-To deploy (all platforms):
+### To deploy (all platforms):
 ```
 ./deploy.sh
 ```
 This will create zip files under artifact for all platforms, select your platform and move the zip to the server.  Unzip the file and run the install.sh on the server.
 
-To install:
+### To install:
 ```
 sudo ./install.sh
 ```
 
-To start:
+### To start:
 ```
 sudo service popmedia-server-service start
 ```
 
-To stop:
+### To stop:
 ```
 sudo service popmedia-server-service stop
 ```
 
-To restart:
+### To restart:
 ```
 sudo service popmedia-server-service restart
 ```
