@@ -2,32 +2,42 @@
 
 A media server in go-lang
 
-To build:
+###To test:
+```
+./test.sh
+```
+
+###To run:
+```
+./run.sh
+```
+
+###To build:
 ```
 ./build.sh
 ```
 
-To deploy (all platforms):
+###To deploy (all platforms):
 ```
 ./deploy.sh
 ```
 
-To install:
+###To install:
 ```
 sudo ./install.sh
 ```
 
-To start:
+###To start:
 ```
 sudo service popmedia-server-service start
 ```
 
-To stop:
+###To stop:
 ```
 sudo service popmedia-server-service stop
 ```
 
-To restart:
+###To restart:
 ```
 sudo service popmedia-server-service restart
 ```
