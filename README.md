@@ -1,8 +1,8 @@
 # Popmedia2
 
-A media server in go-lang
+## A media server in go-lang
 
-To test:
+### To test:
 ```
 ./test.sh
 ```
