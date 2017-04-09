@@ -2,7 +2,7 @@
 
 A media server in go-lang
 
-###To test:
+##To test:
 ```
 ./test.sh
 ```
