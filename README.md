@@ -50,4 +50,4 @@ Edit file "config.json" with the desired settings.
 - *MediaExt = currently only support MP4*
 
 ### Screen Shot of Web Portal:
-![alt tag](popmedia2/ScreenShot.png)
+![alt tag](ScreenShot.png)
