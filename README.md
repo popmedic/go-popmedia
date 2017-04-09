@@ -48,3 +48,6 @@ Edit file "config.json" with the desired settings.
 - Port = port to run on.
 - Root = root location of site.
 - *MediaExt = currently only support MP4*
+
+### Screen Shot of Web Portal:
+![alt tag](popmedia2/ScreenShot.png)
