@@ -1,17 +1,18 @@
 package server
 
 import (
-	"net/http"
-	"log"
-	"path"
-	"os"
 	"fmt"
-	"io/ioutil"
 	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path"
 	"path/filepath"
-	"strings"
 	"regexp"
+	"strings"
 )
+
 func loadTemplate(name, path string) (*template.Template, error) {
 	b, err := ioutil.ReadFile(path)
 	if nil != err {
@@ -19,9 +20,9 @@ func loadTemplate(name, path string) (*template.Template, error) {
 	}
 	funcMap := template.FuncMap{
 		"replaceDashes": replaceDashes,
-		"splitDashes": splitDashes,
-		"split": strings.Split,
-		"joinPath": joinPath,
+		"splitDashes":   splitDashes,
+		"split":         strings.Split,
+		"joinPath":      joinPath,
 	}
 	return template.New(name).Funcs(funcMap).Parse(string(b))
 }
@@ -31,7 +32,7 @@ func respond404(p string, w http.ResponseWriter) {
 		fmt.Fprintf(w, "404 you dumbass. you got and error:", err)
 		return
 	}
-	tmpl.Execute(w, struct { Path string }{ Path:p })
+	tmpl.Execute(w, struct{ Path string }{Path: p})
 	return
 }
 
@@ -55,9 +56,9 @@ func respondMain(r, p string, w http.ResponseWriter) {
 		log.Println("Unable to execute readdir", err)
 		return
 	}
-	v := FilesAndDirectoriesInfo {
-		Info: newInfo(strings.TrimSuffix(filepath.Base(p), filepath.Ext(p)), p),
-		Files: InfoList{},
+	v := FilesAndDirectoriesInfo{
+		Info:        newInfo(strings.TrimSuffix(filepath.Base(p), filepath.Ext(p)), p),
+		Files:       InfoList{},
 		Directories: InfoList{},
 	}
 	if p == "/" || p == "" {
@@ -65,7 +66,7 @@ func respondMain(r, p string, w http.ResponseWriter) {
 	}
 	for _, info := range infos {
 		if !strings.HasPrefix(info.Name(), ".") &&
-		   !strings.HasPrefix(info.Name(), "_") {
+			!strings.HasPrefix(info.Name(), "_") {
 			info = followSymLink(filepath.Join(r, p), info)
 
 			if info.IsDir() {
@@ -98,8 +99,8 @@ func respondSearch(root string, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	q := strings.Join(r.Form["q"], " ")
 	v := FilesAndDirectoriesInfo{
-		Info: newInfo(q, ""),
-		Files: InfoList{},
+		Info:        newInfo(q, ""),
+		Files:       InfoList{},
 		Directories: InfoList{},
 	}
 
@@ -129,6 +130,23 @@ func respondSearch(root string, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func respondPlayer(p string, w http.ResponseWriter) {
+	tmpl, err := loadTemplate("player", "templates/player.html")
+	if nil != err {
+		fmt.Fprintf(w, err.Error())
+		return
+	}
+
+	info := newInfo(strings.TrimSuffix(filepath.Base(p), filepath.Ext(p)), p)
+
+	err = tmpl.Execute(w, info)
+	if nil != err {
+		fmt.Fprintf(w, err.Error())
+		log.Println("Unable to execute template in main", err)
+		return
+	}
+}
+
 func Run() error {
 	cfg, err := newConfig("config.json")
 	if nil != err {
@@ -139,8 +157,10 @@ func Run() error {
 	return http.ListenAndServe(":"+cfg.Port, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fs := http.Dir(cfg.Root)
 		p := path.Clean(r.URL.Path)
-		if regexp.MustCompile("/search").MatchString(p) {
+		if isSearch(p) {
 			respondSearch(cfg.Root, w, r)
+		} else if isPlayer(p) {
+			respondPlayer(strings.TrimPrefix(p, "/player"), w)
 		} else {
 			_, err := fs.Open(p)
 			if os.IsNotExist(err) {
@@ -157,6 +177,18 @@ func Run() error {
 			}
 		}
 	}))
+}
+
+func isSearch(p string) bool {
+	return regexp.MustCompile("^/search").MatchString(p)
+}
+
+func isPlayer(p string) bool {
+	return regexp.MustCompile("^/player").MatchString(p)
+}
+
+func isMp4(fi os.FileInfo) bool {
+	return strings.ToLower(filepath.Ext(fi.Name())) == ".mp4"
 }
 
 func stringsContain(ss []string, s string) bool {
@@ -181,7 +213,7 @@ func joinPath(ss []string, n int) string {
 }
 
 func followSymLink(p string, info os.FileInfo) os.FileInfo {
-	if info.Mode() & os.ModeSymlink == os.ModeSymlink {
+	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
 		_p, err := filepath.EvalSymlinks(filepath.Join(p, info.Name()))
 		if nil == err {
 			_info, err := os.Lstat(_p)
@@ -194,7 +226,7 @@ func followSymLink(p string, info os.FileInfo) os.FileInfo {
 }
 
 func followSymLinkWithPath(p string, info os.FileInfo) (os.FileInfo, string) {
-	if info.Mode() & os.ModeSymlink == os.ModeSymlink {
+	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
 		_p, err := filepath.EvalSymlinks(p)
 		if nil == err {
 			_info, err := os.Lstat(_p)

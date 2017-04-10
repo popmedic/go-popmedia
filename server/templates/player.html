@@ -1,0 +1,88 @@
+<html>
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            font-family: "HelveticaNeueUltraLight", "HelveticaNeue-Ultra-Light", "Helvetica Neue Ultra Light", "HelveticaNeue", "Helvetica Neue", 'TeXGyreHerosRegular', "Arial", sans-serif; font-weight:100; font-stretch:normal;
+            color: #828282;
+        }
+        a{
+            color: #828282;
+            text-align: center;
+            text-decoration: none;
+        }
+        a:hover{
+            color: black;
+        }
+        div.menu {
+            width: 100%;
+            position: block;
+        }
+        div.menu div.menu-item-left {
+            position: block-inline;
+            text-align:left;
+            float: left;
+        }
+        div.menu div.menu-item-right {
+            position: block-inline;
+            text-align: right;
+            float: right;
+        }
+        section.file div.title {
+            padding-left: 22px;
+            padding-top: 48px;
+            font-size: 32px;
+        }
+        section.file div.player {
+            padding-left: 32px;
+            padding-top: 22px;
+        }
+        section.file div.desc {
+            padding-top: 22px;
+            padding-left:42px;
+        }
+    </style>
+    <title>{{.Name}}</title>
+</head>
+<body>
+    <section>
+        <div class="menu">
+            <div class="menu-item-left">
+                {{$pp := split .Path "/"}}
+                {{range $i, $p := $pp}}
+                    {{if eq $i 0 }}
+                <span class="breadcrumb"><a href="/">Home</a></span>
+                    {{else if ne $p ""}}
+                        {{$path := joinPath $pp $i}}
+                <span class="breadcrumb">&nbsp;|&nbsp;<a href="{{$path}}">{{$p}}</a></span>
+                    {{end}}
+                {{end}}
+            </div>
+            <div class="menu-item-right">
+                <form method="get" action="search">
+                    <label for="q">Search:</label>
+                    <input type="text" id="q" name="q" value="" />
+                    <input type="submit" />
+                 </form>
+            </div>
+        </div>
+    </section>
+    <section class="file">
+        <div class="title">
+            {{.Name}}
+        </div>
+        <div class="player">
+            <video controls width="640">
+                <source src="{{.Path}}" />
+            </video>
+        </div>
+        <div class="desc">
+            {{.Desc}}
+        </div>
+    </section>
+</body>
+</html>

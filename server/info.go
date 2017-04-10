@@ -1,18 +1,18 @@
 package server
 
 import (
-	"strings"
-	"path/filepath"
-	"os"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"sort"
+	"strings"
 )
 
-type Info struct{
-	Name string
-	Path string
+type Info struct {
+	Name  string
+	Path  string
 	Image string
-	Desc string
+	Desc  string
 }
 
 type InfoList []*Info
@@ -40,7 +40,7 @@ func newInfo(name, path string) *Info {
 		info.Image = MainConfig.DirectoryImage
 	}
 
-	p := filepath.Join(MainConfig.Root, strings.TrimSuffix(path, filepath.Ext(path)) + ".desc")
+	p := filepath.Join(MainConfig.Root, strings.TrimSuffix(path, filepath.Ext(path))+".desc")
 	if _, err := os.Stat(p); err == nil {
 		d, err := ioutil.ReadFile(p)
 		if nil == err {
@@ -50,9 +50,9 @@ func newInfo(name, path string) *Info {
 	return &info
 }
 
-type FilesAndDirectoriesInfo struct{
-	Info *Info
-	Files InfoList
+type FilesAndDirectoriesInfo struct {
+	Info        *Info
+	Files       InfoList
 	Directories InfoList
 }
 

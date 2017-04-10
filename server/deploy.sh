@@ -70,13 +70,13 @@ function deploy {
     cp -f "${config_path}" "${bd}"
 
     echo "copy ${tmpl} to ${bd}"
-    cp -r "${tmpl}" "${bd}"
+    cp -rf "${tmpl}" "${bd}"
 
     echo "copy ${svc} to ${bd}"
-    cp "${svc}" "${bd}"
+    cp -f "${svc}" "${bd}"
 
     echo "copy ${install} to ${bd}"
-    cp "${install}" "${bd}"
+    cp -f "${install}" "${bd}"
 
     # TODO: Add the images and any other resources/assets
     

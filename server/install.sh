@@ -17,4 +17,4 @@ echo "copy services script to ${idir}"
 cp -f popmedia-server-service.sh ${idir}
 
 echo "installing services"
-ln -s "${idir}/popmedia-server-service.sh" "/etc/init.d/popmedia-server-service"
+ln -sf "${idir}/popmedia-server-service.sh" "/etc/init.d/popmedia-server-service"
