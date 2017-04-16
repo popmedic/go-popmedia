@@ -1,28 +1,28 @@
 package server
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strings"
 	"sync"
 	"time"
-	"log"
-	"path/filepath"
-	"os"
-	"strings"
-	"regexp"
-	"fmt"
-	"sort"
 )
 
 type search struct {
-	searchIndex map[string]string
-	indexMutex sync.RWMutex
-	createMutex sync.Mutex
+	searchIndex      map[string]string
+	indexMutex       sync.RWMutex
+	createMutex      sync.Mutex
 	setCreatingMutex sync.RWMutex
-	creating bool
+	creating         bool
 }
 
 var (
 	searchInstance *search
-	searchOnce sync.Once
+	searchOnce     sync.Once
 )
 
 func MainSearch() *search {
@@ -99,9 +99,8 @@ func (s *search) createIndex() {
 					if info.IsDir() ||
 						stringsContain(MainConfig.MediaExt, strings.ToLower(filepath.Ext(info.Name()))) {
 
-						//info, path := followSymLinkWithPath(path, info)
 						idx[path] = strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
-						i += 1
+						i++
 						for range out {
 							fmt.Print("\b")
 						}
@@ -125,7 +124,7 @@ func (s *search) createIndex() {
 func (s *search) Query(v string) map[string]string {
 	idx := s.getSearchIndex()
 	res := map[string]string{}
-	re, err := regexp.Compile(strings.ToLower(".*"+v+".*"))
+	re, err := regexp.Compile(strings.ToLower(".*" + v + ".*"))
 	if nil != err {
 		log.Println(err)
 		return res
@@ -175,10 +174,11 @@ func walk(path string, info os.FileInfo, walkFn filepath.WalkFunc) error {
 		return err
 	}
 
-	if !info.IsDir() {
+	if !info.IsDir() ||
+		strings.HasPrefix(".", info.Name()) ||
+		strings.HasPrefix("_", info.Name()) {
 		return nil
 	}
-
 	names, err := readDirNames(p)
 	if err != nil {
 		return walkFn(path, info, err)

@@ -138,6 +138,10 @@ func respondPlayer(p string, w http.ResponseWriter) {
 	}
 
 	info := newInfo(strings.TrimSuffix(filepath.Base(p), filepath.Ext(p)), p)
+	err = info.loadExtInfo()
+	if nil != err {
+		log.Println(err)
+	}
 
 	err = tmpl.Execute(w, info)
 	if nil != err {

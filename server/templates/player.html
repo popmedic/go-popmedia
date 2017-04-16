@@ -45,6 +45,14 @@
             padding-top: 22px;
             padding-left:42px;
         }
+        section.file div.extra {
+            padding-top: 22px;
+            padding-left:48px;
+        }
+        section.file div.extra div {
+            padding-top: 12px;
+            padding-left:48px;
+        }
     </style>
     <title>{{.Name}}</title>
 </head>
@@ -76,12 +84,23 @@
             {{.Name}}
         </div>
         <div class="player">
-            <video controls width="640">
+            <video controls width="640" poster="{{.Image}}" autoplay>
                 <source src="{{.Path}}" />
             </video>
         </div>
         <div class="desc">
             {{.Desc}}
+        </div>
+        <div class="extra">
+            <div class="artists">
+                Artist: <br/>{{.ExtInfo.Artist}}
+            </div>
+            <div class="releasedate">
+                Release Date: {{.ExtInfo.ReleaseDate}}
+            </div>
+            <div class="genre">
+                Genre: {{.ExtInfo.Genre}}
+            </div>
         </div>
     </section>
 </body>
