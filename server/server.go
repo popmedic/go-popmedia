@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,7 +12,22 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
+
+type wout struct{ error }
+
+func (err wout) Print(params ...interface{}) {
+	if len(params) > 0 {
+		if w, ok := params[0].(io.Writer); ok {
+			fmt.Fprintf(w, err.Error())
+			for _, v := range params[1:] {
+				log.Print(v)
+			}
+			log.Println(err)
+		}
+	}
+}
 
 func loadTemplate(name, path string) (*template.Template, error) {
 	b, err := ioutil.ReadFile(path)
@@ -29,7 +45,7 @@ func loadTemplate(name, path string) (*template.Template, error) {
 func respond404(p string, w http.ResponseWriter) {
 	tmpl, err := loadTemplate("404", "templates/404.html")
 	if nil != err {
-		fmt.Fprintf(w, "404 you dumbass. you got and error:", err)
+		fmt.Fprintf(w, "404 you dumbass. you got and error: %q", err)
 		return
 	}
 	tmpl.Execute(w, struct{ Path string }{Path: p})
@@ -39,7 +55,7 @@ func respond404(p string, w http.ResponseWriter) {
 func respondMain(r, p string, w http.ResponseWriter) {
 	tmpl, err := loadTemplate("main-directory", "templates/main.html")
 	if nil != err {
-		fmt.Fprintf(w, err.Error())
+		wout{err}.Print(w)
 		return
 	}
 
@@ -49,11 +65,15 @@ func respondMain(r, p string, w http.ResponseWriter) {
 		log.Println("Unable to execute open", err)
 		return
 	}
+	defer func(f *os.File) {
+		if err := f.Close(); nil != err {
+			log.Println("Unable to close file: " + f.Name() + "\nError: " + err.Error())
+		}
+	}(f)
 
 	infos, err := f.Readdir(0)
 	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		log.Println("Unable to execute readdir", err)
+		wout{err}.Print(w, "Unable to execute readdir", err)
 		return
 	}
 	v := FilesAndDirectoriesInfo{
@@ -83,8 +103,7 @@ func respondMain(r, p string, w http.ResponseWriter) {
 	v.SortAll()
 	err = tmpl.Execute(w, v)
 	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		log.Println("Unable to execute template in main", err)
+		wout{err}.Print(w, "Unable to execute template in main")
 		return
 	}
 }
@@ -124,8 +143,7 @@ func respondSearch(root string, w http.ResponseWriter, r *http.Request) {
 	v.SortAll()
 	err = tmpl.Execute(w, v)
 	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		log.Println("Unable to execute template in search", err)
+		wout{err}.Print(w, "Unable to execute template in search")
 		return
 	}
 }
@@ -145,10 +163,22 @@ func respondPlayer(p string, w http.ResponseWriter) {
 
 	err = tmpl.Execute(w, info)
 	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		log.Println("Unable to execute template in main", err)
+		wout{err}.Print(w, "Unable to execute template in main")
 		return
 	}
+}
+
+func respondMp4(p string, w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Connection", "keep-alive")
+	file, err := os.Open(p)
+	if nil != err {
+		wout{err}.Print(w, "Unable to open video")
+		return
+	}
+
+	defer file.Close()
+
+	http.ServeContent(w, r, p, time.Now(), file)
 }
 
 func Run() error {
@@ -165,6 +195,8 @@ func Run() error {
 			respondSearch(cfg.Root, w, r)
 		} else if isPlayer(p) {
 			respondPlayer(strings.TrimPrefix(p, "/player"), w)
+		} else if isMp4File(p) {
+			respondMp4(filepath.Join(cfg.Root, p), w, r)
 		} else {
 			_, err := fs.Open(p)
 			if os.IsNotExist(err) {
@@ -189,6 +221,10 @@ func isSearch(p string) bool {
 
 func isPlayer(p string) bool {
 	return regexp.MustCompile("^/player").MatchString(p)
+}
+
+func isMp4File(p string) bool {
+	return regexp.MustCompile(".mp4$").MatchString(strings.ToLower(p))
 }
 
 func isMp4(fi os.FileInfo) bool {

@@ -1,6 +1,6 @@
 {
   "Port": "8080",
-  "Root": "/Users/Kevin/media",
+  "Root": "/Users/Kevin/media/MoviePop",
   "MediaExt":[
     ".mp4"
   ]

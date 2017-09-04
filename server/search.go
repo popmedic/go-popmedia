@@ -51,7 +51,7 @@ func (s *search) setSearchIndex(idx map[string]string) {
 }
 
 func (s *search) getSearchIndex() map[string]string {
-	var v map[string]string
+	v := make(map[string]string)
 	func(s *search, v *map[string]string, lock *sync.RWMutex) {
 		defer func(lock *sync.RWMutex) {
 			lock.RUnlock()
@@ -60,6 +60,19 @@ func (s *search) getSearchIndex() map[string]string {
 		*v = s.searchIndex
 	}(s, &v, &s.indexMutex)
 	return v
+}
+
+func (s *search) getSearchValues() []string {
+	idx := s.getSearchIndex()
+	ss := []string{}
+	if !s.getCreating() {
+		for _, v := range idx {
+			if len(v) > 0 && v[0] != '.' && v[0] != '_' {
+				ss = append(ss, v)
+			}
+		}
+	}
+	return ss
 }
 
 func (s *search) setCreating(v bool) {
