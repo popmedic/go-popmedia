@@ -56,3 +56,7 @@ func (m *Muxer) Handle(w http.ResponseWriter, r *http.Request) {
 
 	m.defaultHandler.Handle(w, r)
 }
+
+func (m *Muxer) ListenAndServe(addr string) error {
+	return http.ListenAndServe(addr, http.HandlerFunc(m.Handle))
+}

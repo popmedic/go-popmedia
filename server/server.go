@@ -2,7 +2,6 @@ package server
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/popmedic/popmedia2/server/config"
 	"github.com/popmedic/popmedia2/server/handle"
@@ -14,8 +13,7 @@ func Run() error {
 	if nil != err {
 		return err
 	}
-	cfg := config.MainConfig
-	log.Println("Serving on port", cfg.Port, "with root", cfg.Root)
+	log.Println("Serving on port", config.MainConfig.Port, "with root", config.MainConfig.Root)
 
 	handlers := []mux.IHandler{
 		handle.NewFavicon(),
@@ -29,6 +27,5 @@ func Run() error {
 	}
 
 	muxer := mux.NewMuxer().WithHandlers(handlers).WithDefaultHandler(handle.NewDefault())
-
-	return http.ListenAndServe(":"+cfg.Port, http.HandlerFunc(muxer.Handle))
+	return muxer.ListenAndServe(":" + config.MainConfig.Port)
 }
