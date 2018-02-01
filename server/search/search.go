@@ -1,4 +1,4 @@
-package server
+package search
 
 import (
 	"fmt"
@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/popmedic/popmedia2/server/config"
 )
 
 type search struct {
@@ -106,11 +108,11 @@ func (s *search) createIndex() {
 		i := 0
 		fmt.Println()
 		out := ""
-		err := Walk(MainConfig.Root, func(path string, info os.FileInfo, err error) error {
+		err := Walk(config.MainConfig.Root, func(path string, info os.FileInfo, err error) error {
 			if nil != info {
 				if !strings.HasPrefix(".", info.Name()) && !strings.HasPrefix("_", info.Name()) {
 					if info.IsDir() ||
-						stringsContain(MainConfig.MediaExt, strings.ToLower(filepath.Ext(info.Name()))) {
+						StringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(info.Name()))) {
 
 						idx[path] = strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
 						i++
@@ -132,6 +134,30 @@ func (s *search) createIndex() {
 			s.setSearchIndex(idx)
 		}
 	}
+}
+
+func StringsContain(ss []string, s string) bool {
+	for _, str := range ss {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
+
+func followSymLinkWithPath(p string, info os.FileInfo) (os.FileInfo, string) {
+	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
+		_p, err := filepath.EvalSymlinks(p)
+		if nil == err {
+			_info, err := os.Lstat(_p)
+			if nil == err {
+				return _info, _p
+			}
+		} else {
+			log.Println(err)
+		}
+	}
+	return info, p
 }
 
 func (s *search) Query(v string) map[string]string {

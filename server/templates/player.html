@@ -60,12 +60,14 @@
     <section>
         <div class="menu">
             <div class="menu-item-left">
+                {{$spath := .Path}}
                 {{$pp := split .Path "/"}}
                 {{range $i, $p := $pp}}
                     {{if eq $i 0 }}
                 <span class="breadcrumb"><a href="/">Home</a></span>
-                    {{else if ne $p ""}}
-                        {{$path := joinPath $pp $i}}
+                    {{else if ne $p "player"}}
+                        {{$pt := joinPath $pp $i}}
+                        {{$path := stripPlayer $pt}}
                 <span class="breadcrumb">&nbsp;|&nbsp;<a href="{{$path}}">{{$p}}</a></span>
                     {{end}}
                 {{end}}
@@ -85,11 +87,12 @@
         </div>
         <div class="player">
             <video controls width="640" poster="{{.Image}}" autoplay>
-                <source src="{{.Path}}" />
+                {{$pth := stripPlayer $spath}}
+                <source src="{{$pth}}" />
             </video>
         </div>
         <div class="desc">
-            {{.Desc}}
+            {{.Desc}}{{$pth}}
         </div>
         <div class="extra">
             <div class="artists">

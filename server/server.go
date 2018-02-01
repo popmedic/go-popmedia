@@ -1,281 +1,34 @@
 package server
 
 import (
-	"fmt"
-	"html/template"
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"regexp"
-	"strings"
-	"time"
+
+	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/handle"
+	"github.com/popmedic/popmedia2/server/mux"
 )
 
-type wout struct{ error }
-
-func (err wout) Print(params ...interface{}) {
-	if len(params) > 0 {
-		if w, ok := params[0].(io.Writer); ok {
-			fmt.Fprintf(w, err.Error())
-			for _, v := range params[1:] {
-				log.Print(v)
-			}
-			log.Println(err)
-		}
-	}
-}
-
-func loadTemplate(name, path string) (*template.Template, error) {
-	b, err := ioutil.ReadFile(path)
-	if nil != err {
-		return nil, err
-	}
-	funcMap := template.FuncMap{
-		"replaceDashes": replaceDashes,
-		"splitDashes":   splitDashes,
-		"split":         strings.Split,
-		"joinPath":      joinPath,
-	}
-	return template.New(name).Funcs(funcMap).Parse(string(b))
-}
-func respond404(p string, w http.ResponseWriter) {
-	tmpl, err := loadTemplate("404", "templates/404.html")
-	if nil != err {
-		fmt.Fprintf(w, "404 you dumbass. you got and error: %q", err)
-		return
-	}
-	tmpl.Execute(w, struct{ Path string }{Path: p})
-	return
-}
-
-func respondMain(r, p string, w http.ResponseWriter) {
-	tmpl, err := loadTemplate("main-directory", "templates/main.html")
-	if nil != err {
-		wout{err}.Print(w)
-		return
-	}
-
-	f, err := os.Open(filepath.Join(r, p))
-	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		log.Println("Unable to execute open", err)
-		return
-	}
-	defer func(f *os.File) {
-		if err := f.Close(); nil != err {
-			log.Println("Unable to close file: " + f.Name() + "\nError: " + err.Error())
-		}
-	}(f)
-
-	infos, err := f.Readdir(0)
-	if nil != err {
-		wout{err}.Print(w, "Unable to execute readdir", err)
-		return
-	}
-	v := FilesAndDirectoriesInfo{
-		Info:        newInfo(strings.TrimSuffix(filepath.Base(p), filepath.Ext(p)), p),
-		Files:       InfoList{},
-		Directories: InfoList{},
-	}
-	if p == "/" || p == "" {
-		v.Info.Name = "PoPMediA"
-	}
-	for _, info := range infos {
-		if !strings.HasPrefix(info.Name(), ".") &&
-			!strings.HasPrefix(info.Name(), "_") {
-			info = followSymLink(filepath.Join(r, p), info)
-
-			if info.IsDir() {
-				i := newInfo(strings.TrimSuffix(info.Name(), filepath.Ext(info.Name())),
-					filepath.Join(p, info.Name()))
-				v.Directories = append(v.Directories, i)
-			} else if stringsContain(MainConfig.MediaExt, strings.ToLower(filepath.Ext(info.Name()))) {
-				i := newInfo(strings.TrimSuffix(info.Name(), filepath.Ext(info.Name())),
-					filepath.Join(p, info.Name()))
-				v.Files = append(v.Files, i)
-			}
-		}
-	}
-	v.SortAll()
-	err = tmpl.Execute(w, v)
-	if nil != err {
-		wout{err}.Print(w, "Unable to execute template in main")
-		return
-	}
-}
-
-func respondSearch(root string, w http.ResponseWriter, r *http.Request) {
-	tmpl, err := loadTemplate("main-search", "templates/main.html")
-	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		return
-	}
-
-	r.ParseForm()
-	q := strings.Join(r.Form["q"], " ")
-	v := FilesAndDirectoriesInfo{
-		Info:        newInfo(q, ""),
-		Files:       InfoList{},
-		Directories: InfoList{},
-	}
-
-	res := MainSearch().Query(q)
-	for path, name := range res {
-		info, err := os.Lstat(path)
-		if err == nil {
-			info = followSymLink(path, info)
-			if info.IsDir() {
-				i := newInfo(name, strings.TrimPrefix(path, root))
-				v.Directories = append(v.Directories, i)
-			} else if stringsContain(MainConfig.MediaExt, strings.ToLower(filepath.Ext(info.Name()))) {
-				i := newInfo(name, strings.TrimPrefix(path, root))
-				v.Files = append(v.Files, i)
-			}
-		} else {
-			log.Println(err)
-		}
-	}
-
-	v.SortAll()
-	err = tmpl.Execute(w, v)
-	if nil != err {
-		wout{err}.Print(w, "Unable to execute template in search")
-		return
-	}
-}
-
-func respondPlayer(p string, w http.ResponseWriter) {
-	tmpl, err := loadTemplate("player", "templates/player.html")
-	if nil != err {
-		fmt.Fprintf(w, err.Error())
-		return
-	}
-
-	info := newInfo(strings.TrimSuffix(filepath.Base(p), filepath.Ext(p)), p)
-	err = info.loadExtInfo()
-	if nil != err {
-		log.Println(err)
-	}
-
-	err = tmpl.Execute(w, info)
-	if nil != err {
-		wout{err}.Print(w, "Unable to execute template in main")
-		return
-	}
-}
-
-func respondMp4(p string, w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Connection", "keep-alive")
-	file, err := os.Open(p)
-	if nil != err {
-		wout{err}.Print(w, "Unable to open video")
-		return
-	}
-
-	defer file.Close()
-
-	http.ServeContent(w, r, p, time.Now(), file)
-}
-
 func Run() error {
-	cfg, err := newConfig("config.json")
+	err := config.MainConfig.LoadConfig("config.json")
 	if nil != err {
 		return err
 	}
+	cfg := config.MainConfig
 	log.Println("Serving on port", cfg.Port, "with root", cfg.Root)
 
-	return http.ListenAndServe(":"+cfg.Port, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fs := http.Dir(cfg.Root)
-		p := path.Clean(r.URL.Path)
-		if isSearch(p) {
-			respondSearch(cfg.Root, w, r)
-		} else if isPlayer(p) {
-			respondPlayer(strings.TrimPrefix(p, "/player"), w)
-		} else if isMp4File(p) {
-			respondMp4(filepath.Join(cfg.Root, p), w, r)
-		} else {
-			_, err := fs.Open(p)
-			if os.IsNotExist(err) {
-				respond404(p, w)
-			} else {
-				fi, err := os.Stat(cfg.Root + p)
-				if nil != err {
-					fmt.Fprintln(w, err)
-				} else if fi.IsDir() {
-					respondMain(cfg.Root, p, w)
-				} else {
-					http.FileServer(fs).ServeHTTP(w, r)
-				}
-			}
-		}
-	}))
-}
-
-func isSearch(p string) bool {
-	return regexp.MustCompile("^/search").MatchString(p)
-}
-
-func isPlayer(p string) bool {
-	return regexp.MustCompile("^/player").MatchString(p)
-}
-
-func isMp4File(p string) bool {
-	return regexp.MustCompile(".mp4$").MatchString(strings.ToLower(p))
-}
-
-func isMp4(fi os.FileInfo) bool {
-	return strings.ToLower(filepath.Ext(fi.Name())) == ".mp4"
-}
-
-func stringsContain(ss []string, s string) bool {
-	for _, str := range ss {
-		if s == str {
-			return true
-		}
+	handlers := []mux.IHandler{
+		handle.NewFavicon(),
+		handle.NewHandshake(),
+		handle.NewRoku(),
+		handle.NewSearch(),
+		handle.NewPlayer(),
+		handle.NewMp4(),
+		handle.NewH404(),
+		handle.NewMain(),
 	}
-	return false
-}
 
-func replaceDashes(s string) template.HTML {
-	return template.HTML(strings.Replace(s, " - ", "<br/>", -1))
-}
+	muxer := mux.NewMuxer().WithHandlers(handlers).WithDefaultHandler(handle.NewDefault())
 
-func splitDashes(s string) []string {
-	return strings.Split(s, " - ")
-}
-
-func joinPath(ss []string, n int) string {
-	return string(filepath.Separator) + filepath.Join(ss[0:n+1]...)
-}
-
-func followSymLink(p string, info os.FileInfo) os.FileInfo {
-	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-		_p, err := filepath.EvalSymlinks(filepath.Join(p, info.Name()))
-		if nil == err {
-			_info, err := os.Lstat(_p)
-			if nil == err {
-				return _info
-			}
-		}
-	}
-	return info
-}
-
-func followSymLinkWithPath(p string, info os.FileInfo) (os.FileInfo, string) {
-	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-		_p, err := filepath.EvalSymlinks(p)
-		if nil == err {
-			_info, err := os.Lstat(_p)
-			if nil == err {
-				return _info, _p
-			}
-		} else {
-			log.Println(err)
-		}
-	}
-	return info, p
+	return http.ListenAndServe(":"+cfg.Port, http.HandlerFunc(muxer.Handle))
 }
