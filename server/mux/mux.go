@@ -6,16 +6,18 @@ import (
 )
 
 type Muxer struct {
-	handlers            []IHandler
 	defaultHandler      IHandler
-	handlersMutex       sync.RWMutex
 	defaultHandlerMutex sync.RWMutex
+	handlers            []IHandler
+	handlersMutex       sync.RWMutex
 }
 
 func NewMuxer() *Muxer {
 	return &Muxer{
-		handlersMutex:       sync.RWMutex{},
+		defaultHandler:      &notImplemented{},
 		defaultHandlerMutex: sync.RWMutex{},
+		handlers:            []IHandler{},
+		handlersMutex:       sync.RWMutex{},
 	}
 }
 
@@ -59,4 +61,14 @@ func (m *Muxer) Handle(w http.ResponseWriter, r *http.Request) {
 
 func (m *Muxer) ListenAndServe(addr string) error {
 	return http.ListenAndServe(addr, http.HandlerFunc(m.Handle))
+}
+
+type notImplemented struct{}
+
+func (ni *notImplemented) Is(r *http.Request) bool {
+	return true
+}
+func (ni *notImplemented) Handle(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+	w.Write([]byte("NOT IMPLEMENTED, default default handler."))
 }
