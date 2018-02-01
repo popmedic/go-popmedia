@@ -3,9 +3,9 @@
 source test.sh
 
 app_name="popmedia-server"
-main_path="cmd/main.go"
+main_path="server/cmd/main.go"
 
-project_root=".."
+project_root="."
 artifact_dir="${project_root}/artifact"
 bin_dir="${artifact_dir}/bin"
 app_path="${bin_dir}/${app_name}"

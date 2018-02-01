@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 )
 
-var MainConfig *Config
+var MainConfig = &Config{}
 
 type Config struct {
 	Port           string
@@ -43,12 +43,4 @@ func (cfg *Config) ReloadConfig() error {
 	}
 
 	return json.Unmarshal(jsonData, cfg)
-}
-
-func init() {
-	var err error
-	MainConfig, err = NewConfig("config.json")
-	if nil != err {
-		panic(err)
-	}
 }

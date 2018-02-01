@@ -9,10 +9,6 @@ import (
 )
 
 func Run() error {
-	err := config.MainConfig.LoadConfig("config.json")
-	if nil != err {
-		return err
-	}
 	log.Println("Serving on port", config.MainConfig.Port, "with root", config.MainConfig.Root)
 
 	handlers := []mux.IHandler{

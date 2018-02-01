@@ -62,10 +62,10 @@ function deploy {
 
     build "${bd}" "${os}" "${arch}"
 
-    config_path="config.json"
-    tmpl="templates"
+    config_path="server/config.json"
+    tmpl="server/templates"
     zip="${app_name}-${os}-${arch}.zip"
-    svc="cmd/popmedia-server-service.sh"
+    svc="server/cmd/popmedia-server-service.sh"
     install="install.sh"
 
     echo "copy ${config_path} to ${bd}"

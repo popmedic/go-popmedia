@@ -2,7 +2,7 @@
 
 idir="/var/popmedia-server/bin"
 
-mkdir -p "/var/popmedia-server/bin"
+mkdir -p "${idir}"
 
 echo "copy config.json to ${idir}"
 cp -n config.json ${idir}
