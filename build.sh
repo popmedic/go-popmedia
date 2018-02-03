@@ -28,5 +28,7 @@ function build {
     echo "building ${app_name} for ${goos}/${goarch}..."
     GOOS="${goos}" GOARCH="${goarch}" go build -o "${app_path}" "${main_path}"
 }
-
+mkdir -p "${bin_dir}"
+cp -r server/templates "${bin_dir}"
+cp server/config.json "${bin_dir}"
 build "${bin_dir}"

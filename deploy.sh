@@ -2,8 +2,8 @@
 
 source build.sh
 
-goos=(linux)
-goarch=(amd64)
+goos=(linux darwin)
+goarch=(amd64 amd64)
 # goos=(darwin \
 #     darwin \
 #     darwin \

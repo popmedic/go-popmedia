@@ -1,6 +1,6 @@
 {
   "Port": "8080",
-  "Root": "/Users/Kevin/MovieTest",
+  "Root": "/Volumes/Media",
   "Host": "http://10.0.0.56",
   "DirectoryImage": "file://pkg:/images/DIR.jpg",
   "MediaExt":[

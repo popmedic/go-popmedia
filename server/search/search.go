@@ -3,15 +3,14 @@ package search
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/search/dir"
 )
 
 type search struct {
@@ -101,63 +100,31 @@ func (s *search) getCreating() bool {
 
 func (s *search) createIndex() {
 	if !s.getCreating() {
-		defer s.setCreating(false)
 		s.setCreating(true)
+		defer s.setCreating(false)
 		log.Println("creating search index...")
 		idx := map[string]string{}
 		i := 0
-		fmt.Println()
 		out := ""
-		err := Walk(config.MainConfig.Root, func(path string, info os.FileInfo, err error) error {
-			if nil != info {
-				if !strings.HasPrefix(".", info.Name()) && !strings.HasPrefix("_", info.Name()) {
-					if info.IsDir() ||
-						StringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(info.Name()))) {
-
-						idx[path] = strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
-						i++
-						for range out {
-							fmt.Print("\b")
-						}
-						out = fmt.Sprintf("processed %d files", i)
-						fmt.Print(out)
-					}
+		dir.Walk(config.MainConfig.Root, func(p string) {
+			b := filepath.Base(p)
+			if !strings.HasPrefix("_", b) && stringsContain(config.MainConfig.MediaExt, filepath.Ext(b)) {
+				idx[p] = strings.TrimSuffix(b, filepath.Ext(b))
+				i++
+				for range out {
+					fmt.Print("\b")
 				}
+				out = fmt.Sprintf("processed %d files", i)
+				fmt.Print(out)
 			}
-			return nil
 		})
-		fmt.Println()
-		if nil != err {
-			log.Println("unable to create index", err)
-		} else {
-			log.Println("search index created.")
-			s.setSearchIndex(idx)
+		for range out {
+			fmt.Print("\b")
 		}
+		fmt.Println("Total processed", i)
+		log.Println("search index created.")
+		s.setSearchIndex(idx)
 	}
-}
-
-func StringsContain(ss []string, s string) bool {
-	for _, str := range ss {
-		if s == str {
-			return true
-		}
-	}
-	return false
-}
-
-func followSymLinkWithPath(p string, info os.FileInfo) (os.FileInfo, string) {
-	if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-		_p, err := filepath.EvalSymlinks(p)
-		if nil == err {
-			_info, err := os.Lstat(_p)
-			if nil == err {
-				return _info, _p
-			}
-		} else {
-			log.Println(err)
-		}
-	}
-	return info, p
 }
 
 func (s *search) Query(v string) map[string]string {
@@ -186,68 +153,13 @@ func (s *search) indexRoutine() {
 	}
 }
 
-// readDirNames reads the directory named by dirname and returns
-// a sorted list of directory entries.
-func readDirNames(dirname string) ([]string, error) {
-	f, err := os.Open(dirname)
-	if err != nil {
-		return nil, err
-	}
-	names, err := f.Readdirnames(-1)
-	f.Close()
-	if err != nil {
-		return nil, err
-	}
-	sort.Strings(names)
-	return names, nil
-}
-
-// walk recursively descends path, calling w.
-func walk(path string, info os.FileInfo, walkFn filepath.WalkFunc) error {
-	info, p := followSymLinkWithPath(path, info)
-	err := walkFn(path, info, nil)
-	if err != nil {
-		if info.IsDir() && err == filepath.SkipDir {
-			return nil
-		}
-		return err
-	}
-
-	if !info.IsDir() ||
-		strings.HasPrefix(".", info.Name()) ||
-		strings.HasPrefix("_", info.Name()) {
-		return nil
-	}
-	names, err := readDirNames(p)
-	if err != nil {
-		return walkFn(path, info, err)
-	}
-
-	for _, name := range names {
-		filename := filepath.Join(path, name)
-		fileInfo, err := os.Lstat(filename)
-		if err != nil {
-			if err := walkFn(filename, fileInfo, err); err != nil && err != filepath.SkipDir {
-				return err
-			}
-		} else {
-			err = walk(filename, fileInfo, walkFn)
-			if err != nil {
-				if !fileInfo.IsDir() || err != filepath.SkipDir {
-					return err
-				}
-			}
+func stringsContain(ss []string, s string) bool {
+	for _, str := range ss {
+		if strings.ToLower(s) == strings.ToLower(str) {
+			return true
 		}
 	}
-	return nil
-}
-
-func Walk(root string, walkFn filepath.WalkFunc) error {
-	info, err := os.Lstat(root)
-	if err != nil {
-		return walkFn(root, nil, err)
-	}
-	return walk(root, info, walkFn)
+	return false
 }
 
 func init() {

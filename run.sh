@@ -3,5 +3,6 @@
 set -e
 
 source build.sh
-echo "running ${app_path} -config=\"server/config.json\""
-${app_path} -config="server/config.json"
+cd "${bin_dir}"
+echo "running ${app_name}"
+./${app_name}

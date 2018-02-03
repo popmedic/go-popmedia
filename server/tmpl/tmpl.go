@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -20,6 +21,7 @@ func LoadTemplate(name, path string) (*template.Template, error) {
 		"joinPath":      joinPath,
 		"stripPlayer":   stripPlayer,
 		"upDir":         upDir,
+		"upDirName":     upDirName,
 		"urlEncode":     urlEncode,
 	}
 	return template.New(name).Funcs(funcMap).Parse(string(b))
@@ -41,14 +43,20 @@ func stripPlayer(s string) string {
 	return strings.Replace(s, "/player", "", 1)
 }
 
+func upDirName(s string) string {
+	str := upDir(s)
+	name := filepath.Base(str)
+	if name == "/" {
+		return "Home"
+	}
+	return name
+}
+
 func upDir(s string) string {
-	p := filepath.SplitList(filepath.Dir(s))
+	str := strings.Trim(s, string(os.PathSeparator))
+	p := strings.Split(str, string(os.PathSeparator))
 	if len(p) > 1 {
-		pp := filepath.Join(p[:len(p)-1]...)
-		if pp[0] != '/' {
-			return "/" + pp
-		}
-		return pp
+		return "/" + filepath.Join(p[:len(p)-1]...)
 	}
 	return "/"
 }

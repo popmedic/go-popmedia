@@ -149,7 +149,7 @@ func NewFilesAndDirectoriesInfoFromPath(path string) (*FilesAndDirectoriesInfo, 
 				i := NewInfo(strings.TrimSuffix(inf.Name(), filepath.Ext(inf.Name())),
 					filepath.Join(path, inf.Name()))
 				v.Directories = append(v.Directories, i)
-			} else if search.StringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
+			} else if stringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
 				i := NewInfo(strings.TrimSuffix(inf.Name(), filepath.Ext(inf.Name())),
 					filepath.Join(path, inf.Name()))
 				v.Files = append(v.Files, i)
@@ -176,7 +176,7 @@ func NewFilesAndDirectoriesInfoFromSearch(q string) *FilesAndDirectoriesInfo {
 			if inf.IsDir() {
 				i := NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root)+"/")
 				v.Directories = append(v.Directories, i)
-			} else if search.StringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
+			} else if stringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
 				i := NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root))
 				v.Files = append(v.Files, i)
 			}
@@ -212,4 +212,13 @@ func host() string {
 		return config.MainConfig.Host
 	}
 	return config.MainConfig.Host + ":" + port
+}
+
+func stringsContain(ss []string, s string) bool {
+	for _, str := range ss {
+		if strings.ToLower(s) == strings.ToLower(str) {
+			return true
+		}
+	}
+	return false
 }
