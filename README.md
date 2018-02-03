@@ -44,7 +44,7 @@ sudo service popmedia-server-service restart
 ```
 
 ### To configure:
-Edit file "config.json" with the desired settings.
+Edit file `server/config.json` with the desired settings.
 - Port = port to run on.
 - Root = root location of site.
 - *MediaExt = currently only support MP4*
