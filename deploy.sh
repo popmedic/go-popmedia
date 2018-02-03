@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+source clean.sh
 source build.sh
 
 goos=(linux darwin)
