@@ -24,6 +24,6 @@ func Run(ctx *context.Context) error {
 		handle.NewMain(ctx),
 	}
 
-	muxer := mux.NewMuxer(ctx).WithHandlers(handlers).WithDefaultHandler(handle.NewDefault(ctx))
+	muxer := mux.NewMuxer().WithHandlers(handlers).WithDefaultHandler(handle.NewDefault(ctx))
 	return muxer.ListenAndServe(":" + config.MainConfig.Port)
 }
