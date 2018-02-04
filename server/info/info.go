@@ -85,39 +85,14 @@ func (il InfoList) Swap(i, j int) {
 }
 
 func NewInfo(name, path string) *Info {
-	info := Info{
-		Name: name,
-		Path: path,
-		Host: host(),
-		Bif:  strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.bif",
+	return &Info{
+		Name:  name,
+		Path:  path,
+		Host:  host(),
+		Bif:   bif(path),
+		Image: image(path),
+		Desc:  desc(path),
 	}
-	info.Image = strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.jpg"
-	if _, err := os.Stat(filepath.Join(config.MainConfig.Root, info.Image)); err != nil {
-		info.Image = config.MainConfig.DirectoryImage
-	}
-
-	p := filepath.Join(config.MainConfig.Root, strings.TrimSuffix(path, filepath.Ext(path))+".desc")
-	if _, err := os.Stat(p); err == nil {
-		d, err := ioutil.ReadFile(p)
-		if nil == err {
-			info.Desc = string(d)
-		}
-	}
-	return &info
-}
-
-func GetFileInfos(path string) ([]os.FileInfo, error) {
-	f, err := os.Open(filepath.Join(config.MainConfig.Root, path))
-	if nil != err {
-		return nil, err
-	}
-	defer func(f *os.File) {
-		if err := f.Close(); nil != err {
-			log.Println("Unable to close file: " + f.Name() + "\nError: " + err.Error())
-		}
-	}(f)
-
-	return f.Readdir(0)
 }
 
 type FilesAndDirectoriesInfo struct {
@@ -127,15 +102,15 @@ type FilesAndDirectoriesInfo struct {
 }
 
 func NewFilesAndDirectoriesInfoFromPath(path string) (*FilesAndDirectoriesInfo, error) {
-	infos, err := GetFileInfos(path)
-	if nil != err {
-		return nil, err
-	}
-
 	v := FilesAndDirectoriesInfo{
 		Info:        NewInfo(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)), path),
 		Files:       InfoList{},
 		Directories: InfoList{},
+	}
+
+	infos, err := getFileInfos(path)
+	if nil != err {
+		return nil, err
 	}
 	if path == "/" || path == "" {
 		v.Info.Name = "PoPMediA"
@@ -156,7 +131,7 @@ func NewFilesAndDirectoriesInfoFromPath(path string) (*FilesAndDirectoriesInfo, 
 			}
 		}
 	}
-	v.SortAll()
+	v.sortAll()
 	return &v, nil
 }
 
@@ -174,21 +149,33 @@ func NewFilesAndDirectoriesInfoFromSearch(q string) *FilesAndDirectoriesInfo {
 		if err == nil {
 			inf = followSymLink(path, inf)
 			if inf.IsDir() {
-				i := NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root)+"/")
-				v.Directories = append(v.Directories, i)
+				v.Directories = append(v.Directories, NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root)+"/"))
 			} else if stringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
-				i := NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root))
-				v.Files = append(v.Files, i)
+				v.Files = append(v.Files, NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root)))
 			}
 		} else {
 			log.Println(err)
 		}
 	}
-	v.SortAll()
+	v.sortAll()
 	return &v
 }
 
-func (v *FilesAndDirectoriesInfo) SortAll() {
+func getFileInfos(path string) ([]os.FileInfo, error) {
+	f, err := os.Open(filepath.Join(config.MainConfig.Root, path))
+	if nil != err {
+		return nil, err
+	}
+	defer func(f *os.File) {
+		if err := f.Close(); nil != err {
+			log.Println("Unable to close file: " + f.Name() + "\nError: " + err.Error())
+		}
+	}(f)
+
+	return f.Readdir(0)
+}
+
+func (v *FilesAndDirectoriesInfo) sortAll() {
 	sort.Sort(v.Files)
 	sort.Sort(v.Directories)
 }
@@ -212,6 +199,39 @@ func host() string {
 		return config.MainConfig.Host
 	}
 	return config.MainConfig.Host + ":" + port
+}
+
+func image(path string) string {
+	i := strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.jpg"
+	if _, err := os.Stat(filepath.Join(config.MainConfig.Root, i)); err != nil {
+
+		var isDir = false
+		if inf, err := os.Stat(filepath.Join(config.MainConfig.Root, path)); nil == err {
+			isDir = inf.IsDir()
+		}
+
+		if isDir {
+			i = config.MainConfig.DirectoryImage
+		} else {
+			i = config.MainConfig.FileImage
+		}
+	}
+	return i
+}
+
+func bif(path string) string {
+	return strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.bif"
+}
+
+func desc(path string) string {
+	p := filepath.Join(config.MainConfig.Root, strings.TrimSuffix(path, filepath.Ext(path))+".desc")
+	if _, err := os.Stat(p); err == nil {
+		d, err := ioutil.ReadFile(p)
+		if nil == err {
+			return string(d)
+		}
+	}
+	return ""
 }
 
 func stringsContain(ss []string, s string) bool {

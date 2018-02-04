@@ -13,6 +13,8 @@ type Config struct {
 	Host           string
 	MediaExt       []string
 	DirectoryImage string
+	FileImage      string
+	LogFile        string
 	path           string
 }
 

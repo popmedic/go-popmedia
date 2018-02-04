@@ -12,6 +12,8 @@ import (
 	"github.com/popmedic/wout"
 )
 
+var mp4RE = regexp.MustCompile(".mp4$")
+
 type Mp4 struct {
 	path string
 }
@@ -22,7 +24,7 @@ func NewMp4() *Mp4 {
 
 func (h *Mp4) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	return regexp.MustCompile(".mp4$").MatchString(strings.ToLower(h.path))
+	return mp4RE.MatchString(strings.ToLower(h.path))
 }
 
 func (h *Mp4) Handle(w http.ResponseWriter, r *http.Request) {

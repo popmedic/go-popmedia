@@ -121,7 +121,7 @@ func (s *search) createIndex() {
 		for range out {
 			fmt.Print("\b")
 		}
-		fmt.Println("Total processed", i)
+		log.Println("Total processed", i)
 		log.Println("search index created.")
 		s.setSearchIndex(idx)
 	}
@@ -160,8 +160,4 @@ func stringsContain(ss []string, s string) bool {
 		}
 	}
 	return false
-}
-
-func init() {
-	MainSearch()
 }
