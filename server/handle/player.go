@@ -22,9 +22,15 @@ func NewPlayer() *Player {
 	return &Player{}
 }
 
+var playerRE = regexp.MustCompile("^/player")
+
 func (h *Player) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	return regexp.MustCompile("^/player").MatchString(h.path)
+	if playerRE.MatchString(h.path) {
+		h.path = strings.TrimLeft(h.path, "/player")
+		return true
+	}
+	return false
 }
 
 func (h *Player) Handle(w http.ResponseWriter, r *http.Request) {

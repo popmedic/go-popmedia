@@ -87,12 +87,11 @@
         </div>
         <div class="player">
             <video controls width="640" poster="{{.Image}}" autoplay>
-                {{$pth := stripPlayer $spath}}
-                <source src="{{$pth}}" />
+                <source src="/{{.Path}}" />
             </video>
         </div>
         <div class="desc">
-            {{.Desc}}{{$pth}}
+            {{.Desc}}
         </div>
         <div class="extra">
             <div class="artists">
