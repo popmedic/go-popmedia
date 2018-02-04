@@ -22,7 +22,7 @@ type Mp4Info struct {
 }
 
 func NewMp4Info(info *Info) (*Mp4Info, error) {
-	cmd := exec.Command("mp4info", filepath.Join(config.MainConfig.Root, info.Path))
+	cmd := exec.Command("/usr/local/bin/mp4info", filepath.Join(config.MainConfig.Root, info.Path))
 	res, err := cmd.Output()
 	if nil != err {
 		return nil, errors.New("unable to read mp4info cli output " + err.Error())
