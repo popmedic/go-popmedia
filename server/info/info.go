@@ -204,16 +204,18 @@ func host() string {
 func image(path string) string {
 	i := strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.jpg"
 	if _, err := os.Stat(filepath.Join(config.MainConfig.Root, i)); err != nil {
+		i = strings.TrimSuffix(i, filepath.Ext(i)) + ".png"
+		if _, err := os.Stat(filepath.Join(config.MainConfig.Root, i)); err != nil {
+			var isDir = false
+			if inf, err := os.Stat(filepath.Join(config.MainConfig.Root, path)); nil == err {
+				isDir = inf.IsDir()
+			}
 
-		var isDir = false
-		if inf, err := os.Stat(filepath.Join(config.MainConfig.Root, path)); nil == err {
-			isDir = inf.IsDir()
-		}
-
-		if isDir {
-			i = config.MainConfig.DirectoryImage
-		} else {
-			i = config.MainConfig.FileImage
+			if isDir {
+				i = config.MainConfig.DirectoryImage
+			} else {
+				i = config.MainConfig.FileImage
+			}
 		}
 	}
 	return i
