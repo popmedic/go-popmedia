@@ -25,9 +25,11 @@ func NewSearch(ctx *context.Context) *Search {
 	}
 }
 
+var searchRE = regexp.MustCompile("^/search")
+
 func (h *Search) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	return regexp.MustCompile("^/search").MatchString(h.path)
+	return searchRE.MatchString(h.path)
 }
 
 func (h *Search) Handle(w http.ResponseWriter, r *http.Request) {
