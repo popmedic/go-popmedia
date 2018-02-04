@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -43,7 +44,7 @@ func main() {
 
 	ctx := context.NewContext().WithConfig(config.MainConfig).WithSearch(search.MainSearch(config.MainConfig))
 
-	if err := server.Run(ctx); nil != err {
+	if err := server.Run(ctx, http.ListenAndServe); nil != err {
 		log.Println(err)
 	}
 }
