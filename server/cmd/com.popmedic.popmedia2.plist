@@ -8,7 +8,7 @@
         <string>com.popmedic.popmedia2</string>
         <key>ProgramArguments</key>
         <array>
-                <string>/var/popmedia-server/bin/popmedia-server</string>
+                <string>/var/popmedia-server/popmedia-server</string>
         </array>
         <key>RunAtLoad</key>
         <true/>

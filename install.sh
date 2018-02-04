@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-idir="/var/popmedia-server/bin"
+idir="/var/popmedia-server"
 
 mkdir -p "${idir}"
 
