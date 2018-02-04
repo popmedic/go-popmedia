@@ -4,15 +4,18 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/context"
 )
 
 type Default struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewDefault() *Default {
-	return &Default{}
+func NewDefault(ctx *context.Context) *Default {
+	return &Default{
+		context: ctx,
+	}
 }
 
 func (h *Default) Is(r *http.Request) bool {
@@ -21,5 +24,5 @@ func (h *Default) Is(r *http.Request) bool {
 }
 
 func (h *Default) Handle(w http.ResponseWriter, r *http.Request) {
-	http.FileServer(http.Dir(config.MainConfig.Root)).ServeHTTP(w, r)
+	http.FileServer(http.Dir(h.context.Config.Root)).ServeHTTP(w, r)
 }

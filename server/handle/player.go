@@ -9,17 +9,21 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/info"
 	"github.com/popmedic/popmedia2/server/tmpl"
 	"github.com/popmedic/wout"
 )
 
 type Player struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewPlayer() *Player {
-	return &Player{}
+func NewPlayer(ctx *context.Context) *Player {
+	return &Player{
+		context: ctx,
+	}
 }
 
 var playerRE = regexp.MustCompile("^/player")
@@ -40,7 +44,7 @@ func (h *Player) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	inf := info.NewInfo(strings.TrimSuffix(filepath.Base(h.path), filepath.Ext(h.path)), h.path)
+	inf := info.NewInfo(h.context, strings.TrimSuffix(filepath.Base(h.path), filepath.Ext(h.path)), h.path)
 	err = inf.LoadExtInfo()
 	if nil != err {
 		log.Println(err)

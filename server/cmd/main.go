@@ -9,6 +9,7 @@ import (
 
 	"github.com/popmedic/popmedia2/server"
 	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/context"
 )
 
 func main() {
@@ -38,7 +39,9 @@ func main() {
 
 	}
 
-	if err := server.Run(); nil != err {
+	ctx := context.NewContext().WithConfig(config.MainConfig)
+
+	if err := server.Run(ctx); nil != err {
 		log.Println(err)
 	}
 }

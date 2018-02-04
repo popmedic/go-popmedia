@@ -7,20 +7,26 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/wout"
 )
 
 type Favicon struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewFavicon() *Favicon {
-	return &Favicon{}
+func NewFavicon(ctx *context.Context) *Favicon {
+	return &Favicon{
+		context: ctx,
+	}
 }
+
+var faviconRE = regexp.MustCompile("^/favicon.ico")
 
 func (h *Favicon) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	return regexp.MustCompile("^/favicon.ico").MatchString(h.path)
+	return faviconRE.MatchString(h.path)
 }
 
 func (h *Favicon) Handle(w http.ResponseWriter, r *http.Request) {

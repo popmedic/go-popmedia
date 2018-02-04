@@ -10,8 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/popmedic/popmedia2/server/config"
-	"github.com/popmedic/popmedia2/server/search"
+	"github.com/popmedic/popmedia2/server/context"
+	// "github.com/popmedic/popmedia2/server/config"
+	// "github.com/popmedic/popmedia2/server/search"
 )
 
 type Mp4Info struct {
@@ -21,8 +22,8 @@ type Mp4Info struct {
 	Genre       string
 }
 
-func NewMp4Info(info *Info) (*Mp4Info, error) {
-	cmd := exec.Command("/usr/local/bin/mp4info", filepath.Join(config.MainConfig.Root, info.Path))
+func NewMp4Info(ctx *context.Context, info *Info) (*Mp4Info, error) {
+	cmd := exec.Command("/usr/local/bin/mp4info", filepath.Join(ctx.Config.Root, info.Path))
 	res, err := cmd.Output()
 	if nil != err {
 		return nil, errors.New("unable to read mp4info cli output " + err.Error())
@@ -58,10 +59,11 @@ type Info struct {
 	Desc    string
 	Bif     string
 	ExtInfo *Mp4Info
+	context *context.Context
 }
 
 func (info *Info) LoadExtInfo() error {
-	mp4Info, err := NewMp4Info(info)
+	mp4Info, err := NewMp4Info(info.context, info)
 	if nil != err {
 		return err
 	}
@@ -84,14 +86,15 @@ func (il InfoList) Swap(i, j int) {
 	il[i], il[j] = il[j], il[i]
 }
 
-func NewInfo(name, path string) *Info {
+func NewInfo(ctx *context.Context, name, path string) *Info {
 	return &Info{
-		Name:  name,
-		Path:  path,
-		Host:  host(),
-		Bif:   bif(path),
-		Image: image(path),
-		Desc:  desc(path),
+		Name:    name,
+		Path:    path,
+		Host:    host(ctx),
+		Bif:     bif(path),
+		Image:   image(ctx, path),
+		Desc:    desc(ctx, path),
+		context: ctx,
 	}
 }
 
@@ -101,14 +104,14 @@ type FilesAndDirectoriesInfo struct {
 	Directories InfoList
 }
 
-func NewFilesAndDirectoriesInfoFromPath(path string) (*FilesAndDirectoriesInfo, error) {
+func NewFilesAndDirectoriesInfoFromPath(ctx *context.Context, path string) (*FilesAndDirectoriesInfo, error) {
 	v := FilesAndDirectoriesInfo{
-		Info:        NewInfo(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)), path),
+		Info:        NewInfo(ctx, strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)), path),
 		Files:       InfoList{},
 		Directories: InfoList{},
 	}
 
-	infos, err := getFileInfos(path)
+	infos, err := getFileInfos(ctx, path)
 	if nil != err {
 		return nil, err
 	}
@@ -118,14 +121,14 @@ func NewFilesAndDirectoriesInfoFromPath(path string) (*FilesAndDirectoriesInfo, 
 	for _, inf := range infos {
 		if !strings.HasPrefix(inf.Name(), ".") &&
 			!strings.HasPrefix(inf.Name(), "_") {
-			inf = followSymLink(filepath.Join(config.MainConfig.Root, path), inf)
+			inf = followSymLink(filepath.Join(ctx.Config.Root, path), inf)
 
 			if inf.IsDir() {
-				i := NewInfo(strings.TrimSuffix(inf.Name(), filepath.Ext(inf.Name())),
+				i := NewInfo(ctx, strings.TrimSuffix(inf.Name(), filepath.Ext(inf.Name())),
 					filepath.Join(path, inf.Name()))
 				v.Directories = append(v.Directories, i)
-			} else if stringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
-				i := NewInfo(strings.TrimSuffix(inf.Name(), filepath.Ext(inf.Name())),
+			} else if stringsContain(ctx.Config.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
+				i := NewInfo(ctx, strings.TrimSuffix(inf.Name(), filepath.Ext(inf.Name())),
 					filepath.Join(path, inf.Name()))
 				v.Files = append(v.Files, i)
 			}
@@ -135,23 +138,23 @@ func NewFilesAndDirectoriesInfoFromPath(path string) (*FilesAndDirectoriesInfo, 
 	return &v, nil
 }
 
-func NewFilesAndDirectoriesInfoFromSearch(q string) *FilesAndDirectoriesInfo {
+func NewFilesAndDirectoriesInfoFromSearch(ctx *context.Context, q string) *FilesAndDirectoriesInfo {
 	v := FilesAndDirectoriesInfo{
-		Info:        NewInfo(q, ""),
+		Info:        NewInfo(ctx, q, ""),
 		Files:       InfoList{},
 		Directories: InfoList{},
 	}
 
-	res := search.MainSearch().Query(q)
+	res := ctx.Search.Query(q)
 
 	for path, name := range res {
 		inf, err := os.Lstat(path)
 		if err == nil {
 			inf = followSymLink(path, inf)
 			if inf.IsDir() {
-				v.Directories = append(v.Directories, NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root)+"/"))
-			} else if stringsContain(config.MainConfig.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
-				v.Files = append(v.Files, NewInfo(name, strings.TrimPrefix(path, config.MainConfig.Root)))
+				v.Directories = append(v.Directories, NewInfo(ctx, name, strings.TrimPrefix(path, ctx.Config.Root)+"/"))
+			} else if stringsContain(ctx.Config.MediaExt, strings.ToLower(filepath.Ext(inf.Name()))) {
+				v.Files = append(v.Files, NewInfo(ctx, name, strings.TrimPrefix(path, ctx.Config.Root)))
 			}
 		} else {
 			log.Println(err)
@@ -161,8 +164,8 @@ func NewFilesAndDirectoriesInfoFromSearch(q string) *FilesAndDirectoriesInfo {
 	return &v
 }
 
-func getFileInfos(path string) ([]os.FileInfo, error) {
-	f, err := os.Open(filepath.Join(config.MainConfig.Root, path))
+func getFileInfos(ctx *context.Context, path string) ([]os.FileInfo, error) {
+	f, err := os.Open(filepath.Join(ctx.Config.Root, path))
 	if nil != err {
 		return nil, err
 	}
@@ -193,28 +196,28 @@ func followSymLink(p string, info os.FileInfo) os.FileInfo {
 	return info
 }
 
-func host() string {
-	port := config.MainConfig.Port
+func host(ctx *context.Context) string {
+	port := ctx.Config.Port
 	if len(port) == 0 {
-		return config.MainConfig.Host
+		return ctx.Config.Host
 	}
-	return config.MainConfig.Host + ":" + port
+	return ctx.Config.Host + ":" + port
 }
 
-func image(path string) string {
+func image(ctx *context.Context, path string) string {
 	i := strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.jpg"
-	if _, err := os.Stat(filepath.Join(config.MainConfig.Root, i)); err != nil {
+	if _, err := os.Stat(filepath.Join(ctx.Config.Root, i)); err != nil {
 		i = strings.TrimSuffix(i, filepath.Ext(i)) + ".png"
-		if _, err := os.Stat(filepath.Join(config.MainConfig.Root, i)); err != nil {
+		if _, err := os.Stat(filepath.Join(ctx.Config.Root, i)); err != nil {
 			var isDir = false
-			if inf, err := os.Stat(filepath.Join(config.MainConfig.Root, path)); nil == err {
+			if inf, err := os.Stat(filepath.Join(ctx.Config.Root, path)); nil == err {
 				isDir = inf.IsDir()
 			}
 
 			if isDir {
-				i = config.MainConfig.DirectoryImage
+				i = ctx.Config.DirectoryImage
 			} else {
-				i = config.MainConfig.FileImage
+				i = ctx.Config.FileImage
 			}
 		}
 	}
@@ -225,8 +228,8 @@ func bif(path string) string {
 	return strings.TrimSuffix(path, filepath.Ext(path)) + "-SD.bif"
 }
 
-func desc(path string) string {
-	p := filepath.Join(config.MainConfig.Root, strings.TrimSuffix(path, filepath.Ext(path))+".desc")
+func desc(ctx *context.Context, path string) string {
+	p := filepath.Join(ctx.Config.Root, strings.TrimSuffix(path, filepath.Ext(path))+".desc")
 	if _, err := os.Stat(p); err == nil {
 		d, err := ioutil.ReadFile(p)
 		if nil == err {

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/popmedic/popmedia2/server/context"
 )
 
 func TestIs(t *testing.T) {
@@ -29,7 +31,7 @@ func TestIs(t *testing.T) {
 			exp:   true,
 		},
 	}
-	handle := NewImages()
+	handle := NewImages(&context.Context{})
 	for i, r := range tt {
 		req := &http.Request{
 			URL: &url.URL{

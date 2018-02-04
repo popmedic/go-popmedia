@@ -5,17 +5,21 @@ import (
 	"path"
 	"strings"
 
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/info"
 	"github.com/popmedic/popmedia2/server/tmpl"
 	"github.com/popmedic/wout"
 )
 
 type Roku struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewRoku() *Roku {
-	return &Roku{}
+func NewRoku(ctx *context.Context) *Roku {
+	return &Roku{
+		context: ctx,
+	}
 }
 
 func (h *Roku) Is(r *http.Request) bool {
@@ -43,7 +47,7 @@ func (h *Roku) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := info.NewFilesAndDirectoriesInfoFromPath(h.path)
+	v, err := info.NewFilesAndDirectoriesInfoFromPath(h.context, h.path)
 	if nil != err {
 		wout.Wout{err}.Print(w, "unable to get infos for path \""+h.path+"\"")
 		return

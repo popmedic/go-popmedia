@@ -13,7 +13,7 @@ import (
 	"github.com/popmedic/popmedia2/server/search/dir"
 )
 
-type search struct {
+type Search struct {
 	searchIndex      map[string]string
 	indexMutex       sync.RWMutex
 	createMutex      sync.Mutex
@@ -22,27 +22,27 @@ type search struct {
 }
 
 var (
-	searchInstance *search
+	searchInstance *Search
 	searchOnce     sync.Once
 )
 
-func MainSearch() *search {
+func MainSearch() *Search {
 	searchOnce.Do(func() {
 		searchInstance = newSearch()
 	})
 	return searchInstance
 }
 
-func newSearch() *search {
-	s := &search{}
+func newSearch() *Search {
+	s := &Search{}
 	s.setCreating(false)
 	go s.indexRoutine()
 
 	return s
 }
 
-func (s *search) setSearchIndex(idx map[string]string) {
-	func(s *search, v map[string]string, lock *sync.RWMutex) {
+func (s *Search) setSearchIndex(idx map[string]string) {
+	func(s *Search, v map[string]string, lock *sync.RWMutex) {
 		defer func(lock *sync.RWMutex) {
 			lock.Unlock()
 		}(lock)
@@ -51,9 +51,9 @@ func (s *search) setSearchIndex(idx map[string]string) {
 	}(s, idx, &s.indexMutex)
 }
 
-func (s *search) getSearchIndex() map[string]string {
+func (s *Search) getSearchIndex() map[string]string {
 	v := make(map[string]string)
-	func(s *search, v *map[string]string, lock *sync.RWMutex) {
+	func(s *Search, v *map[string]string, lock *sync.RWMutex) {
 		defer func(lock *sync.RWMutex) {
 			lock.RUnlock()
 		}(lock)
@@ -63,7 +63,7 @@ func (s *search) getSearchIndex() map[string]string {
 	return v
 }
 
-func (s *search) getSearchValues() []string {
+func (s *Search) getSearchValues() []string {
 	idx := s.getSearchIndex()
 	ss := []string{}
 	if !s.getCreating() {
@@ -76,8 +76,8 @@ func (s *search) getSearchValues() []string {
 	return ss
 }
 
-func (s *search) setCreating(v bool) {
-	func(s *search, v bool, lock *sync.RWMutex) {
+func (s *Search) setCreating(v bool) {
+	func(s *Search, v bool, lock *sync.RWMutex) {
 		defer func(lock *sync.RWMutex) {
 			lock.Unlock()
 		}(lock)
@@ -86,9 +86,9 @@ func (s *search) setCreating(v bool) {
 	}(s, v, &s.setCreatingMutex)
 }
 
-func (s *search) getCreating() bool {
+func (s *Search) getCreating() bool {
 	var v bool
-	func(s *search, v *bool, lock *sync.RWMutex) {
+	func(s *Search, v *bool, lock *sync.RWMutex) {
 		defer func(lock *sync.RWMutex) {
 			lock.RUnlock()
 		}(lock)
@@ -98,7 +98,7 @@ func (s *search) getCreating() bool {
 	return v
 }
 
-func (s *search) createIndex() {
+func (s *Search) createIndex() {
 	if !s.getCreating() {
 		s.setCreating(true)
 		defer s.setCreating(false)
@@ -127,7 +127,7 @@ func (s *search) createIndex() {
 	}
 }
 
-func (s *search) Query(v string) map[string]string {
+func (s *Search) Query(v string) map[string]string {
 	idx := s.getSearchIndex()
 	res := map[string]string{}
 	re, err := regexp.Compile(strings.ToLower(".*" + v + ".*"))
@@ -143,7 +143,7 @@ func (s *search) Query(v string) map[string]string {
 	return res
 }
 
-func (s *search) indexRoutine() {
+func (s *Search) indexRoutine() {
 	s.createIndex()
 	for {
 		select {

@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/tmpl"
 	"github.com/popmedic/wout"
 
@@ -14,11 +15,14 @@ import (
 )
 
 type Search struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewSearch() *Search {
-	return &Search{}
+func NewSearch(ctx *context.Context) *Search {
+	return &Search{
+		context: ctx,
+	}
 }
 
 func (h *Search) Is(r *http.Request) bool {
@@ -36,7 +40,7 @@ func (h *Search) Handle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	q := strings.Join(r.Form["q"], " ")
 
-	v := info.NewFilesAndDirectoriesInfoFromSearch(q)
+	v := info.NewFilesAndDirectoriesInfoFromSearch(h.context, q)
 
 	err = tmpl.Execute(w, v)
 	if nil != err {

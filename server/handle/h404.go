@@ -6,21 +6,24 @@ import (
 	"os"
 	"path"
 
-	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/tmpl"
 )
 
 type H404 struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewH404() *H404 {
-	return &H404{}
+func NewH404(ctx *context.Context) *H404 {
+	return &H404{
+		context: ctx,
+	}
 }
 
 func (h *H404) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	fs := http.Dir(config.MainConfig.Root)
+	fs := http.Dir(h.context.Config.Root)
 	_, err := fs.Open(h.path)
 	return os.IsNotExist(err)
 }

@@ -5,15 +5,19 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/tmpl"
 )
 
 type Handshake struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewHandshake() *Handshake {
-	return &Handshake{}
+func NewHandshake(ctx *context.Context) *Handshake {
+	return &Handshake{
+		context: ctx,
+	}
 }
 
 func (h *Handshake) Is(r *http.Request) bool {

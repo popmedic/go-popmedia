@@ -3,6 +3,8 @@ package mux
 import (
 	"net/http"
 	"sync"
+
+	"github.com/popmedic/popmedia2/server/context"
 )
 
 type Muxer struct {
@@ -10,14 +12,16 @@ type Muxer struct {
 	defaultHandlerMutex sync.RWMutex
 	handlers            []IHandler
 	handlersMutex       sync.RWMutex
+	context             *context.Context
 }
 
-func NewMuxer() *Muxer {
+func NewMuxer(ctx *context.Context) *Muxer {
 	return &Muxer{
 		defaultHandler:      &notImplemented{},
 		defaultHandlerMutex: sync.RWMutex{},
 		handlers:            []IHandler{},
 		handlersMutex:       sync.RWMutex{},
+		context:             ctx,
 	}
 }
 

@@ -6,23 +6,26 @@ import (
 	"os"
 	"path"
 
-	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/info"
 	"github.com/popmedic/popmedia2/server/tmpl"
 	"github.com/popmedic/wout"
 )
 
 type Main struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewMain() *Main {
-	return &Main{}
+func NewMain(ctx *context.Context) *Main {
+	return &Main{
+		context: ctx,
+	}
 }
 
 func (h *Main) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	fi, err := os.Stat(config.MainConfig.Root + h.path)
+	fi, err := os.Stat(h.context.Config.Root + h.path)
 	if nil != err {
 		fmt.Println(err)
 		return false
@@ -37,7 +40,7 @@ func (h *Main) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := info.NewFilesAndDirectoriesInfoFromPath(h.path)
+	v, err := info.NewFilesAndDirectoriesInfoFromPath(h.context, h.path)
 	if nil != err {
 		wout.Wout{err}.Print(w, "unable to get infos for path \""+h.path+"\"")
 		return

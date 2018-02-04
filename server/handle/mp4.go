@@ -8,18 +8,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/popmedic/popmedia2/server/config"
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/wout"
 )
 
 var mp4RE = regexp.MustCompile(".mp4$")
 
 type Mp4 struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewMp4() *Mp4 {
-	return &Mp4{}
+func NewMp4(ctx *context.Context) *Mp4 {
+	return &Mp4{
+		context: ctx,
+	}
 }
 
 func (h *Mp4) Is(r *http.Request) bool {
@@ -29,7 +32,7 @@ func (h *Mp4) Is(r *http.Request) bool {
 
 func (h *Mp4) Handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Connection", "keep-alive")
-	file, err := os.Open(config.MainConfig.Root + h.path)
+	file, err := os.Open(h.context.Config.Root + h.path)
 	if nil != err {
 		wout.Wout{err}.Print(w, "Unable to open video")
 		return

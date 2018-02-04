@@ -8,17 +8,21 @@ import (
 	"strings"
 	"time"
 
+	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/wout"
 )
 
 var imgRE = regexp.MustCompile(`^/images/.*\.[jJpP][pPnN][gG]$`)
 
 type Images struct {
-	path string
+	path    string
+	context *context.Context
 }
 
-func NewImages() *Images {
-	return &Images{}
+func NewImages(ctx *context.Context) *Images {
+	return &Images{
+		context: ctx,
+	}
 }
 
 func (h *Images) Is(r *http.Request) bool {
