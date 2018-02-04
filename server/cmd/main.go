@@ -41,7 +41,7 @@ func main() {
 
 	}
 
-	ctx := context.NewContext().WithConfig(config.MainConfig).WithSearch(search.MainSearch())
+	ctx := context.NewContext().WithConfig(config.MainConfig).WithSearch(search.MainSearch(config.MainConfig))
 
 	if err := server.Run(ctx); nil != err {
 		log.Println(err)

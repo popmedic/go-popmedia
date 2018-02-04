@@ -26,17 +26,17 @@ var (
 	searchOnce     sync.Once
 )
 
-func MainSearch() *Search {
+func MainSearch(cfg *config.Config) *Search {
 	searchOnce.Do(func() {
-		searchInstance = newSearch()
+		searchInstance = newSearch(cfg)
 	})
 	return searchInstance
 }
 
-func newSearch() *Search {
+func newSearch(cfg *config.Config) *Search {
 	s := &Search{}
 	s.setCreating(false)
-	go s.indexRoutine()
+	go s.indexRoutine(cfg)
 
 	return s
 }
@@ -98,7 +98,7 @@ func (s *Search) getCreating() bool {
 	return v
 }
 
-func (s *Search) createIndex() {
+func (s *Search) createIndex(cfg *config.Config) {
 	if !s.getCreating() {
 		s.setCreating(true)
 		defer s.setCreating(false)
@@ -106,9 +106,9 @@ func (s *Search) createIndex() {
 		idx := map[string]string{}
 		i := 0
 		out := ""
-		dir.Walk(config.MainConfig.Root, func(p string) {
+		dir.Walk(cfg.Root, func(p string) {
 			b := filepath.Base(p)
-			if !strings.HasPrefix("_", b) && stringsContain(config.MainConfig.MediaExt, filepath.Ext(b)) {
+			if !strings.HasPrefix("_", b) && stringsContain(cfg.MediaExt, filepath.Ext(b)) {
 				idx[p] = strings.TrimSuffix(b, filepath.Ext(b))
 				i++
 				for range out {
@@ -143,12 +143,12 @@ func (s *Search) Query(v string) map[string]string {
 	return res
 }
 
-func (s *Search) indexRoutine() {
-	s.createIndex()
+func (s *Search) indexRoutine(cfg *config.Config) {
+	s.createIndex(cfg)
 	for {
 		select {
 		case <-time.After(time.Hour * 4):
-			s.createIndex()
+			s.createIndex(cfg)
 		}
 	}
 }
