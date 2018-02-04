@@ -59,8 +59,9 @@ func (m *Muxer) Handle(w http.ResponseWriter, r *http.Request) {
 	m.defaultHandler.Handle(w, r)
 }
 
-func (m *Muxer) ListenAndServe(addr string) error {
-	return http.ListenAndServe(addr, http.HandlerFunc(m.Handle))
+func (m *Muxer) ListenAndServe(addr string,
+	listenAndServe func(addr string, handler Handler) error) error {
+	return listenAndServe(addr, http.HandlerFunc(m.Handle))
 }
 
 type notImplemented struct{}

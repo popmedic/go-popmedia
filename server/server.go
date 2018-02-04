@@ -9,8 +9,8 @@ import (
 	"github.com/popmedic/popmedia2/server/mux"
 )
 
-func Run(ctx *context.Context) error {
-	log.Println("Serving on port", config.MainConfig.Port, "with root", config.MainConfig.Root)
+func Run(ctx *context.Context, listenAndServe func(addr string, handler Handler) error) error {
+	log.Println("Serving on port", ctx.Config.Port, "with root", ctx.Config.Root)
 
 	handlers := []mux.IHandler{
 		handle.NewFavicon(ctx),
@@ -25,5 +25,5 @@ func Run(ctx *context.Context) error {
 	}
 
 	muxer := mux.NewMuxer().WithHandlers(handlers).WithDefaultHandler(handle.NewDefault(ctx))
-	return muxer.ListenAndServe(":" + config.MainConfig.Port)
+	return muxer.ListenAndServe(":"+config.MainConfig.Port, listenAndServe)
 }
