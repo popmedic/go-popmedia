@@ -2,8 +2,8 @@
 source clean.sh
 source build.sh
 
-goos=(linux darwin)
-goarch=(amd64 amd64)
+goos=(darwin)
+goarch=(amd64)
 # goos=(darwin \
 #     darwin \
 #     darwin \
@@ -64,8 +64,10 @@ function deploy {
 
     config_path="server/config.json"
     tmpl="server/templates"
+    imgs="server/images"
     zip="${app_name}-${os}-${arch}.zip"
     svc="server/cmd/popmedia-server-service.sh"
+    plist="server/cmd/com.popmedic.popmedia2.plist"
     install="install.sh"
 
     echo "copy ${config_path} to ${bd}"
@@ -74,8 +76,14 @@ function deploy {
     echo "copy ${tmpl} to ${bd}"
     cp -rf "${tmpl}" "${bd}"
 
+    echo "copy ${imgs} to ${bd}"
+    cp -rf "${imgs}" "${bd}"
+
     echo "copy ${svc} to ${bd}"
     cp -f "${svc}" "${bd}"
+
+    echo "copy ${plist} to ${bd}"
+    cp -f "${plist}" "${bd}"
 
     echo "copy ${install} to ${bd}"
     cp -f "${install}" "${bd}"

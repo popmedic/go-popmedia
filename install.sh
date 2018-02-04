@@ -13,8 +13,20 @@ cp -f popmedia-server ${idir}
 echo "copy templates to ${idir}"
 cp -rf templates ${idir}
 
+echo "copy images to ${idir}"
+cp -rf images ${idir}
+
 echo "copy services script to ${idir}"
 cp -f popmedia-server-service.sh ${idir}
 
 echo "installing services"
-ln -sf "${idir}/popmedia-server-service.sh" "/etc/init.d/popmedia-server-service"
+if [ $(uname) == "Darwin" ]; then
+    if [[ ! -z $(launchctl list | grep popmedic) ]]; then
+        launchctl unload /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+    fi
+    cp com.popmedic.popmedia2.plist /Library/LaunchDaemons
+    launchctl load /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+else
+    ln -sf "${idir}/popmedia-server-service.sh" "/etc/init.d/popmedia-server-service"
+    services popmedia-server-service start
+fi

@@ -3,6 +3,8 @@ package server
 import (
 	"log"
 
+	"github.com/popmedic/popmedia2/server/search"
+
 	"github.com/popmedic/popmedia2/server/config"
 	"github.com/popmedic/popmedia2/server/handle"
 	"github.com/popmedic/popmedia2/server/mux"
@@ -18,10 +20,11 @@ func Run() error {
 		handle.NewSearch(),
 		handle.NewPlayer(),
 		handle.NewMp4(),
+		handle.NewImages(),
 		handle.NewH404(),
 		handle.NewMain(),
 	}
-
+	search.MainSearch()
 	muxer := mux.NewMuxer().WithHandlers(handlers).WithDefaultHandler(handle.NewDefault())
 	return muxer.ListenAndServe(":" + config.MainConfig.Port)
 }

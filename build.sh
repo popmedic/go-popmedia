@@ -30,5 +30,6 @@ function build {
 }
 mkdir -p "${bin_dir}"
 cp -r server/templates "${bin_dir}"
+cp -r server/images "${bin_dir}"
 cp server/config.json "${bin_dir}"
 build "${bin_dir}"
