@@ -3,8 +3,6 @@ package server
 import (
 	"log"
 
-	"github.com/popmedic/popmedia2/server/search"
-
 	"github.com/popmedic/popmedia2/server/config"
 	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/handle"
@@ -13,8 +11,6 @@ import (
 
 func Run(ctx *context.Context) error {
 	log.Println("Serving on port", config.MainConfig.Port, "with root", config.MainConfig.Root)
-
-	ctx.SetSearch(search.MainSearch())
 
 	handlers := []mux.IHandler{
 		handle.NewFavicon(ctx),

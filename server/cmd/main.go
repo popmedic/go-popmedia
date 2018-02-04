@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"syscall"
 
+	"github.com/popmedic/popmedia2/server/search"
+
 	"github.com/popmedic/popmedia2/server"
 	"github.com/popmedic/popmedia2/server/config"
 	"github.com/popmedic/popmedia2/server/context"
@@ -39,7 +41,7 @@ func main() {
 
 	}
 
-	ctx := context.NewContext().WithConfig(config.MainConfig)
+	ctx := context.NewContext().WithConfig(config.MainConfig).WithSearch(search.MainSearch())
 
 	if err := server.Run(ctx); nil != err {
 		log.Println(err)
