@@ -17,19 +17,19 @@ import (
 type Search struct {
 	path    string
 	context *context.Context
+	re      *regexp.Regexp
 }
 
 func NewSearch(ctx *context.Context) *Search {
 	return &Search{
 		context: ctx,
+		re:      regexp.MustCompile("^/search"),
 	}
 }
 
-var searchRE = regexp.MustCompile("^/search")
-
 func (h *Search) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	return searchRE.MatchString(h.path)
+	return h.re.MatchString(h.path)
 }
 
 func (h *Search) Handle(w http.ResponseWriter, r *http.Request) {

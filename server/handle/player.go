@@ -18,19 +18,19 @@ import (
 type Player struct {
 	path    string
 	context *context.Context
+	re      *regexp.Regexp
 }
 
 func NewPlayer(ctx *context.Context) *Player {
 	return &Player{
 		context: ctx,
+		re:      regexp.MustCompile("^/player"),
 	}
 }
 
-var playerRE = regexp.MustCompile("^/player")
-
 func (h *Player) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	if playerRE.MatchString(h.path) {
+	if h.re.MatchString(h.path) {
 		h.path = strings.TrimLeft(h.path, "/player")
 		return true
 	}

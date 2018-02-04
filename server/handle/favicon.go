@@ -14,19 +14,19 @@ import (
 type Favicon struct {
 	path    string
 	context *context.Context
+	re      *regexp.Regexp
 }
 
 func NewFavicon(ctx *context.Context) *Favicon {
 	return &Favicon{
 		context: ctx,
+		re:      regexp.MustCompile("^/favicon.ico"),
 	}
 }
 
-var faviconRE = regexp.MustCompile("^/favicon.ico")
-
 func (h *Favicon) Is(r *http.Request) bool {
 	h.path = path.Clean(r.URL.Path)
-	return faviconRE.MatchString(h.path)
+	return h.re.MatchString(h.path)
 }
 
 func (h *Favicon) Handle(w http.ResponseWriter, r *http.Request) {
