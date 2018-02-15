@@ -2,13 +2,13 @@ package search
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/popmedic/go-logger/log"
 	"github.com/popmedic/popmedia2/server/config"
 	"github.com/popmedic/popmedia2/server/search/dir"
 )
@@ -102,7 +102,7 @@ func (s *Search) createIndex(cfg *config.Config) {
 	if !s.getCreating() {
 		s.setCreating(true)
 		defer s.setCreating(false)
-		log.Println("creating search index...")
+		log.Info("creating search index...")
 		idx := map[string]string{}
 		i := 0
 		out := ""
@@ -121,8 +121,8 @@ func (s *Search) createIndex(cfg *config.Config) {
 		for range out {
 			fmt.Print("\b")
 		}
-		log.Println("Total processed", i)
-		log.Println("search index created.")
+		log.Info("Total processed", i)
+		log.Info("search index created.")
 		s.setSearchIndex(idx)
 	}
 }
@@ -132,7 +132,7 @@ func (s *Search) Query(v string) map[string]string {
 	res := map[string]string{}
 	re, err := regexp.Compile(strings.ToLower(".*" + v + ".*"))
 	if nil != err {
-		log.Println(err)
+		log.Info(err)
 		return res
 	}
 	for key, val := range idx {

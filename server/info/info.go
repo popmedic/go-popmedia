@@ -3,16 +3,14 @@ package info
 import (
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	"github.com/popmedic/go-logger/log"
 	"github.com/popmedic/popmedia2/server/context"
-	// "github.com/popmedic/popmedia2/server/config"
-	// "github.com/popmedic/popmedia2/server/search"
 )
 
 type Mp4Info struct {
@@ -157,7 +155,7 @@ func NewFilesAndDirectoriesInfoFromSearch(ctx *context.Context, q string) *Files
 				v.Files = append(v.Files, NewInfo(ctx, name, strings.TrimPrefix(path, ctx.Config.Root)))
 			}
 		} else {
-			log.Println(err)
+			log.Info(err)
 		}
 	}
 	v.sortAll()
@@ -171,7 +169,7 @@ func getFileInfos(ctx *context.Context, path string) ([]os.FileInfo, error) {
 	}
 	defer func(f *os.File) {
 		if err := f.Close(); nil != err {
-			log.Println("Unable to close file: " + f.Name() + "\nError: " + err.Error())
+			log.Info("Unable to close file: " + f.Name() + "\nError: " + err.Error())
 		}
 	}(f)
 

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/popmedic/go-wout/wout"
 	"github.com/popmedic/popmedia2/server/context"
-	"github.com/popmedic/wout"
 )
 
 type Images struct {
