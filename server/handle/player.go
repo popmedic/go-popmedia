@@ -2,17 +2,17 @@ package handle
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"github.com/popmedic/go-logger/log"
+	"github.com/popmedic/go-wout/wout"
 	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/info"
 	"github.com/popmedic/popmedia2/server/tmpl"
-	"github.com/popmedic/wout"
 )
 
 type Player struct {
@@ -47,7 +47,7 @@ func (h *Player) Handle(w http.ResponseWriter, r *http.Request) {
 	inf := info.NewInfo(h.context, strings.TrimSuffix(filepath.Base(h.path), filepath.Ext(h.path)), h.path)
 	err = inf.LoadExtInfo()
 	if nil != err {
-		log.Println(err)
+		log.Info(err)
 	}
 
 	err = tmpl.Execute(w, inf)

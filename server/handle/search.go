@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/popmedic/go-wout/wout"
 	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/tmpl"
-	"github.com/popmedic/wout"
 
 	"github.com/popmedic/popmedia2/server/info"
 )

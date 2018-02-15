@@ -6,10 +6,10 @@ import (
 	"os"
 	"path"
 
+	"github.com/popmedic/go-wout/wout"
 	"github.com/popmedic/popmedia2/server/context"
 	"github.com/popmedic/popmedia2/server/info"
 	"github.com/popmedic/popmedia2/server/tmpl"
-	"github.com/popmedic/wout"
 )
 
 type Main struct {
