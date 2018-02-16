@@ -22,10 +22,10 @@ cp -f popmedia-server-service.sh ${idir}
 echo "installing services"
 if [ $(uname) == "Darwin" ]; then
     if [[ ! -z $(launchctl list | grep popmedic) ]]; then
-        launchctl unload /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+        launchctl unload /Library/LaunchDaemons/com.popmedic.go-popmedia.plist
     fi
-    cp com.popmedic.popmedia2.plist /Library/LaunchDaemons
-    launchctl load /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+    cp com.popmedic.go-popmedia.plist /Library/LaunchDaemons
+    launchctl load /Library/LaunchDaemons/com.popmedic.go-popmedia.plist
 else
     ln -sf "${idir}/popmedia-server-service.sh" "/etc/init.d/popmedia-server-service"
     services popmedia-server-service start

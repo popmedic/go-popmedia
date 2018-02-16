@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/popmedic/popmedia2/server/context"
+	"github.com/popmedic/go-popmedia/server/context"
 )
 
 func TestIs(t *testing.T) {

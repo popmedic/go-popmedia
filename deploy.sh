@@ -16,7 +16,7 @@ function deploy {
     imgs="server/images"
     zip="${app_name}-${os}-${arch}.zip"
     svc="server/cmd/popmedia-server-service.sh"
-    plist="server/cmd/com.popmedic.popmedia2.plist"
+    plist="server/cmd/com.popmedic.go-popmedia.plist"
     install="install.sh"
 
     echo "copy ${config_path} to ${bd}"

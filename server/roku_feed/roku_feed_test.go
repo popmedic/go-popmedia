@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/popmedic/popmedia2/server/roku_feed/model"
+	"github.com/popmedic/go-popmedia/server/roku_feed/model"
 )
 
 func TestNewRokuFeed(t *testing.T) {

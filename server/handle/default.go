@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/popmedic/popmedia2/server/context"
+	"github.com/popmedic/go-popmedia/server/context"
 )
 
 type Default struct {

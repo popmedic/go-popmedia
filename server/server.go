@@ -5,9 +5,9 @@ import (
 
 	"github.com/popmedic/go-logger/log"
 	"github.com/popmedic/go-mux/mux"
-	"github.com/popmedic/popmedia2/server/config"
-	"github.com/popmedic/popmedia2/server/context"
-	"github.com/popmedic/popmedia2/server/handle"
+	"github.com/popmedic/go-popmedia/server/config"
+	"github.com/popmedic/go-popmedia/server/context"
+	"github.com/popmedic/go-popmedia/server/handle"
 )
 
 func Run(ctx *context.Context, listenAndServe func(addr string, handler http.Handler) error) error {

@@ -5,7 +5,7 @@
         <key>KeepAlive</key>
         <false/>
         <key>Label</key>
-        <string>com.popmedic.popmedia2</string>
+        <string>com.popmedic.go-popmedia</string>
         <key>ProgramArguments</key>
         <array>
                 <string>/var/popmedia-server/popmedia-server</string>

@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/popmedic/go-popmedia/server/context"
 	"github.com/popmedic/go-wout/wout"
-	"github.com/popmedic/popmedia2/server/context"
 )
 
 type Favicon struct {

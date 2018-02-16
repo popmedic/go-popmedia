@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/popmedic/go-logger/log"
-	"github.com/popmedic/popmedia2/server/context"
+	"github.com/popmedic/go-popmedia/server/context"
 )
 
 type Mp4Info struct {

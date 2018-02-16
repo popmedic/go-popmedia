@@ -8,10 +8,10 @@ import (
 	"syscall"
 
 	"github.com/popmedic/go-logger/log"
-	"github.com/popmedic/popmedia2/server"
-	"github.com/popmedic/popmedia2/server/config"
-	"github.com/popmedic/popmedia2/server/context"
-	"github.com/popmedic/popmedia2/server/search"
+	"github.com/popmedic/go-popmedia/server"
+	"github.com/popmedic/go-popmedia/server/config"
+	"github.com/popmedic/go-popmedia/server/context"
+	"github.com/popmedic/go-popmedia/server/search"
 )
 
 func main() {

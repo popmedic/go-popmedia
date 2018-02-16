@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/popmedic/popmedia2/server/context"
-	"github.com/popmedic/popmedia2/server/tmpl"
+	"github.com/popmedic/go-popmedia/server/context"
+	"github.com/popmedic/go-popmedia/server/tmpl"
 )
 
 type H404 struct {
