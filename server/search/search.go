@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/popmedic/go-logger/log"
-	"github.com/popmedic/popmedia2/server/config"
-	"github.com/popmedic/popmedia2/server/search/dir"
+	"github.com/popmedic/go-popmedia/server/config"
+	"github.com/popmedic/go-popmedia/server/search/dir"
 )
 
 type Search struct {

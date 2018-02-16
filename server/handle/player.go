@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/popmedic/go-logger/log"
+	"github.com/popmedic/go-popmedia/server/context"
+	"github.com/popmedic/go-popmedia/server/info"
+	"github.com/popmedic/go-popmedia/server/tmpl"
 	"github.com/popmedic/go-wout/wout"
-	"github.com/popmedic/popmedia2/server/context"
-	"github.com/popmedic/popmedia2/server/info"
-	"github.com/popmedic/popmedia2/server/tmpl"
 )
 
 type Player struct {

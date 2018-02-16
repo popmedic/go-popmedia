@@ -1,4 +1,4 @@
-# Popmedia2
+# go-popmedia
 
 ## A media server in go-lang
 
@@ -47,7 +47,7 @@ sudo service popmedia-server-service start
 Mac
 
 ```
-sudo launchctl load /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+sudo launchctl load /Library/LaunchDaemons/com.popmedic.go-popmedia.plist
 ```
 
 ### To stop:
@@ -61,7 +61,7 @@ sudo service popmedia-server-service stop
 Mac
 
 ```
-sudo launchctl unload /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+sudo launchctl unload /Library/LaunchDaemons/com.popmedic.go-popmedia.plist
 ```
 
 ### To restart:
@@ -75,8 +75,8 @@ sudo service popmedia-server-service restart
 Mac
 
 ```
-sudo launchctl unload /Library/LaunchDaemons/com.popmedic.popmedia2.plist && \
-sudo launchctl load /Library/LaunchDaemons/com.popmedic.popmedia2.plist
+sudo launchctl unload /Library/LaunchDaemons/com.popmedic.go-popmedia.plist && \
+sudo launchctl load /Library/LaunchDaemons/com.popmedic.go-popmedia.plist
 ```
 
 ### To configure:

@@ -3,8 +3,8 @@ package context
 import (
 	"sync"
 
-	"github.com/popmedic/popmedia2/server/config"
-	"github.com/popmedic/popmedia2/server/search"
+	"github.com/popmedic/go-popmedia/server/config"
+	"github.com/popmedic/go-popmedia/server/search"
 )
 
 type Context struct {

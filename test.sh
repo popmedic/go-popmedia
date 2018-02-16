@@ -3,7 +3,7 @@
 set -e
 
 function test {
-    go test -cover github.com/popmedic/popmedia2/server/...
+    go test -cover github.com/popmedic/go-popmedia/server/...
 }
 
 test
