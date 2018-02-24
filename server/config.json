@@ -5,6 +5,7 @@
   "DirectoryImage": "/images/directory.png",
   "FileImage": "/images/file.png",
   "LogFile": "log.txt",
+  "UseHTMLLogger": true,
   "MediaExt":[
     ".mp4"
   ]

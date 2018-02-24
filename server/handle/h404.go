@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/popmedic/go-logger/log"
 	"github.com/popmedic/go-popmedia/server/context"
 	"github.com/popmedic/go-popmedia/server/tmpl"
 )
@@ -35,5 +36,6 @@ func (h *H404) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmpl.Execute(w, struct{ Path string }{Path: h.path})
+	log.Debug("404 -", h.path)
 	return
 }

@@ -52,6 +52,7 @@ type Info struct {
 	Name    string
 	Path    string
 	Host    string
+	Svr     string
 	Root    string
 	Image   string
 	Desc    string
@@ -89,6 +90,7 @@ func NewInfo(ctx *context.Context, name, path string) *Info {
 		Name:    name,
 		Path:    path,
 		Host:    host(ctx),
+		Svr:     ctx.Config.Host,
 		Bif:     bif(path),
 		Image:   image(ctx, path),
 		Desc:    desc(ctx, path),

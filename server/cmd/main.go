@@ -38,7 +38,10 @@ func main() {
 		} else {
 			log.SetOutput(lout)
 		}
+	}
 
+	if config.MainConfig.UseHTMLLogger {
+		log.SetHTMLStatus(true, ":6060")
 	}
 
 	ctx := context.NewContext().WithConfig(config.MainConfig).WithSearch(search.MainSearch(config.MainConfig))
