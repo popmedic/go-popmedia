@@ -20,7 +20,7 @@ type Favicon struct {
 func NewFavicon(ctx *context.Context) *Favicon {
 	return &Favicon{
 		context: ctx,
-		re:      regexp.MustCompile("^/favicon.ico"),
+		re:      regexp.MustCompile("favicon.ico$"),
 	}
 }
 
@@ -31,7 +31,11 @@ func (h *Favicon) Is(r *http.Request) bool {
 
 func (h *Favicon) Handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Connection", "keep-alive")
-	file, err := os.Open("templates" + h.path)
+	var (
+		file *os.File
+		err  error
+	)
+	file, err = os.Open("templates/favicon.ico")
 	if nil != err {
 		wout.Wout{err}.Print(w, "Unable to open favicon")
 		return
