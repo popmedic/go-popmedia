@@ -39,6 +39,11 @@ func (h *Mp4) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer file.Close()
-
-	http.ServeContent(w, r, h.path, time.Now(), file)
+	modtime := time.Now()
+	if fs, err := file.Stat(); nil != err {
+		wout.Wout{err}.Print(w, "Unable to get stat on file "+h.path)
+	} else {
+		modtime = fs.ModTime()
+	}
+	http.ServeContent(w, r, h.path, modtime, file)
 }
