@@ -41,7 +41,7 @@ func main() {
 	}
 
 	if config.MainConfig.UseHTMLLogger {
-		log.SetHTMLStatus(true, ":6060")
+		log.SetHTMLStatus(true, ":"+config.MainConfig.HTMLLoggerPort)
 	}
 
 	ctx := context.NewContext().WithConfig(config.MainConfig).WithSearch(search.MainSearch(config.MainConfig))

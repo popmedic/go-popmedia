@@ -16,16 +16,18 @@ type Config struct {
 	FileImage      string
 	LogFile        string
 	UseHTMLLogger  bool
+	HTMLLoggerPort string
 	path           string
 }
 
 func NewConfig(path string) (*Config, error) {
 	cfg := &Config{
-		Port:          "8080",
-		Root:          "/",
-		MediaExt:      []string{},
-		UseHTMLLogger: false,
-		path:          path,
+		Port:           "8080",
+		Root:           "/",
+		MediaExt:       []string{},
+		UseHTMLLogger:  false,
+		HTMLLoggerPort: "6060",
+		path:           path,
 	}
 
 	err := cfg.LoadConfig(path)

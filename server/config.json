@@ -6,6 +6,7 @@
   "FileImage": "/images/file.png",
   "LogFile": "log.txt",
   "UseHTMLLogger": true,
+  "HTMLLoggerPort":"6060",
   "MediaExt":[
     ".mp4"
   ]
