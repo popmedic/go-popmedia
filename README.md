@@ -1,5 +1,7 @@
 # go-popmedia
 
+[![Build Status](https://travis-ci.org/popmedic/go-popmedia.svg?branch=master)](https://travis-ci.org/popmedic/go-popmedia)
+[![codecov](https://codecov.io/gh/popmedic/go-popmedia/branch/master/graph/badge.svg)](https://codecov.io/gh/popmedic/go-popmedia)
 ## A media server in go-lang
 
 ### To test:
